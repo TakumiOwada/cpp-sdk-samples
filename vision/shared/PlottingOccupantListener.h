@@ -32,12 +32,11 @@ public:
     void onOccupantResults(const std::map<vision::OccupantId, vision::Occupant>& occupants,
                            vision::Frame frame) override {
         std::lock_guard<std::mutex> lg(mtx);
+        stopTimer(frame.getTimestamp());
         results_.emplace_back(frame, occupants);
-        process_last_ts_ = frame.getTimestamp();
-
-        processed_frames_++;
+        ++processed_frames_;
         if (!occupants.empty()) {
-            frames_with_occupants_++;
+            ++frames_with_occupants_;
         }
     };
 
@@ -53,17 +52,17 @@ public:
 
         for (const auto& occupant_id_pair : occupants) {
             const vision::Occupant occup = occupant_id_pair.second;
-            std::vector<vision::Point> bbox({occup.boundingBox.getTopLeft(), occup.boundingBox.getBottomRight()});
+            std::vector<vision::Point> bbox({occup.getBoundingBox().getTopLeft(), occup.getBoundingBox().getBottomRight()});
 
             out_stream_ << time_stamp << ","
-                        << occupant_id_pair.first << "," << (occup.body ? std::to_string(occup.body->id) : "Nan") << ","
-                        << occup.matchedSeat.matchConfidence << "," << occup.matchedSeat.cabinRegion.id << ","
+                        << occupant_id_pair.first << "," << (occup.getBody() ? std::to_string(occup.getBody()->getId()) : "Nan") << ","
+                        << occup.getMatchedSeat().matchConfidence << "," << occup.getMatchedSeat().cabinRegion.id << ","
                         << std::setprecision(0) << bbox[0].x << "," << bbox[0].y << "," << bbox[1].x << "," << bbox[1].y
                         << std::setprecision(4);
 
             for (const auto& cr :cabin_regions_) {
-                if (cr.id == occup.matchedSeat.cabinRegion.id) {
-                    out_stream_ << "," << occup.matchedSeat.matchConfidence;
+                if (cr.id == occup.getMatchedSeat().cabinRegion.id) {
+                    out_stream_ << "," << occup.getMatchedSeat().matchConfidence;
                 }
                 else {
                     out_stream_ << "," << 0;
@@ -82,7 +81,7 @@ public:
             const auto occupant =  id_occupant_pair.second;
             viz_.drawOccupantMetrics(occupant);
             //add occupant region detected
-            const auto id = occupant.matchedSeat.cabinRegion.id;
+            const auto id = occupant.getMatchedSeat().cabinRegion.id;
             if(std::find(occupant_regions_.begin(), occupant_regions_.end(), id) == occupant_regions_.end()) {
                 occupant_regions_.emplace_back(id);
             }
@@ -110,9 +109,10 @@ public:
     void reset() override {
         std::lock_guard<std::mutex> lg(mtx);
         process_last_ts_ = 0;
-        start_ = std::chrono::system_clock::now();
         processed_frames_ = 0;
         frames_with_occupants_ = 0;
+        process_fps_ = 0.0f;
+        instantaneous_fps_ = 0.0f;
         results_.clear();
     }
 

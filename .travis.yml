@@ -1,6 +1,0 @@
-sudo: required
-services:
-  - docker
-language: generic
-before_install:
-  - docker build --build-arg AFFECTIVA_AUTO_SDK_1_2_URL=$AFFECTIVA_AUTO_SDK_1_2_0_URL --build-arg BRANCH=$TRAVIS_BRANCH --tag=v1.2.0:affectiva-auto .

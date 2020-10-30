@@ -1,19 +1,4 @@
-# Sample apps for analyzing facial emotion using Affectiva's Automotive SDK for Linux
-### face-registration-demo
-
-This sample demonstrates use of the vision::FaceRegistrar class, getting its input from a video file. It analyzes received frames and registers a single face it finds.  It can also list and remove existing face registrations.
-
-After building, run the command `./face-registration-demo --help` for information on its command line options.
-
----
-
-### frame-detector-webcam-demo
-
-This sample demonstrates use of the SyncFrameDetector class, getting its input from a webcam. It analyzes received frames and displays the results on screen.
-
-After building, run the command `./frame-detector-webcam-demo --help` for information on its command line options.
-
----
+# Sample app for analyzing facial emotion using Affectiva's ICS SDK (C++ native library for Aarch64)
 
 ### frame-detector-video-demo
 
@@ -27,166 +12,123 @@ After building, run the command `./frame-detector-video-demo --help` for informa
 
 #### Affectiva Vision library
 
-The Vision Library is packaged with the Automotive SDK, which is available upon request. To get access, please [contact us](https://auto.affectiva.com/).
-
-#### Additional Dependencies
-
-Install additional dependencies with the following command:  
-Ubuntu:`$ sudo apt install -y wget git build-essential libopencv-dev cmake libgtk2.0-dev pkg-config libjpeg-dev libpng-dev libtiff-dev libavformat-dev libavcodec-dev libswscale-dev`  
-
-[Click here](#ubuntu-18) for instructions on building sample apps for Ubuntu 18.
-
-[Click here](#ubuntu-16) for instruction on building sample apps for Ubuntu 16.
-
-## Ubuntu 18  
-
-### Boost
-Install boost directly from the package manager with the following command:   
-
-Ubuntu: `$ sudo apt install -y libboost-dev libboost-filesystem1.65-dev libboost-program-options1.65-dev libboost-system1.65-dev`
-
-### OpenCV  
-We do not recommend running the sample apps with OpenCV 3.2.0 from the package manager. Instead, you must build opencv 2.4.13 from source. Other OpenCV versions 2.4.** may work but we recommend 2.4.13 as a tested depedency for the sample apps on Ubuntu 18.
-
-Fetch the OpenCV source from github and checkout the 2.4.13 branch with the following commands:
-
-`$ git clone -b 2.4.13 --depth 1 https://github.com/opencv/opencv.git` <br/>
-
-To make OpenCV 2.4.13 compatible with gcc7, change the following code block that begins on line 67 in the file `OpenCVDetectCXXCompiler.cmake` (this file is located at /path/to/opencv/cmake/OpenCVDetectCXXCompiler.cmake):   
-
-```
-66 elseif(CMAKE_COMPILER_IS_GNUCXX)
-67  execute_process(COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1} -dumpversion
-68                OUTPUT_VARIABLE CMAKE_OPENCV_GCC_VERSION_FULL
-
-```
-
-Replace the code block above with the one below:
-
-```
-66 elseif(CMAKE_COMPILER_IS_GNUCXX)
-67  execute_process(COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1} -dumpfullversion
-68                OUTPUT_VARIABLE CMAKE_OPENCV_GCC_VERSION_FULL
-
-```
-
-
-### Building OpenCV 2.4.13 with CMake
-
-```
-cd opencv
-mkdir build install
-cd build
-
-CMAKE_ARGS="-DWITH_FFMPEG=ON \
--DBUILD_TESTS=OFF \
--DBUILD_PERF_TESTS=OFF \
--DCMAKE_BUILD_TYPE=RELEASE \
--DENABLE_PRECOMPILED_HEADERS=OFF \
--DCMAKE_INSTALL_PREFIX=/path/to/opencv/install"
-
-cmake $CMAKE_ARGS ../
-make -j4
-make install
-```
-----
-### Building Samples with CMake
-
-Specify the following CMake variables to identify the locations of various dependencies:
-
-- **AFFECTIVA_SDK_DIR**: set path to the folder where the Automotive SDK is installed (`/path/to/auto-sdk`)
-- **BOOST_ROOT**: set path to the `/usr/` directory
-- **OpenCV_DIR**: set path to the opencv src tree (`/path/to/opencv/install/share/OpenCV`)
-
-#### Linux (x86_64)
-
-Example script (replace directories starting with `/path/to` as appropriate):  
-```
-# create a build directory
-mkdir vision-samples-build/ vision-samples-install/
-cd vision-samples-build
-
-CMAKE_ARGS="-DCMAKE_BUILD_TYPE=Release \
--DAFFECTIVA_SDK_DIR=/path/to/auto-sdk \
--DBOOST_ROOT=/usr/ \
--DOpenCV_DIR=/path/to/opencv/install/share/OpenCV \
--DCMAKE_INSTALL_PREFIX=/path/to/cpp-sdk-samples/vision/vision-samples-install"
-
-cmake $CMAKE_ARGS /path/to/cpp-sdk-samples/vision
-make -j4
-make install
-
-```
-Setup runtime configurations by running the `config.sh` bash script with the following commands:
-```
-$ export AFFECTIVA_SDK_DIR=/path/to/auto-sdk
-$ ../config.sh
-
-```
-
----
-
-## Ubuntu 16
-
-### Boost
-```
-$ mkdir boost-build
-$ cd boost-build
-$ wget https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.gz
-$ tar -xzvf boost_1_63_0.tar.gz
-$ cd boost_1_63_0
-$ ./bootstrap.sh
-$ sudo ./b2 -j $(nproc) cxxflags=-fPIC threading=multi runtime-link=shared \
-      --with-filesystem --with-program_options install
-```
-
-### OpenCV
-Install OpenCV directly from the package manager with the following command:
-
-`$ sudo apt install -y libopencv-dev`
-
-### Building with CMake
-
-Specify the following CMake variables to identify the locations of various dependencies:
-
-- **AFFECTIVA_SDK_DIR**: set path to the folder where the Automotive SDK is installed (`/path/to/auto-sdk`)
-- **BOOST_ROOT**: set path to the Boost src tree (`/path/to/boost-build/`)
-- **OpenCV_DIR**: set path to the `/usr/` directory
+The Affectiva ICS SDK is available upon request. To get access, please [contact us](https://auto.affectiva.com).
 
 
 #### Linux (x86_64, aarch64)
+Branches like this one that have a name that includes "qc", are Android-specific (ARM64) and aarch64-linux-gnu based. For samples that work on Linux, switch to the branch whose name that matches the release you're using.
+##Instructions
 
-Example script (replace directories starting with `/path/to` as appropriate):
+### To install, build and run docker 
+
+If you're new to Docker [click here](https://docs.docker.com/get-started) to learn more about it and install it on your host machine. 
+
+After installing Docker, use the Dockerfile located in the top-level directory of this repo ([here](../Dockerfile.aarch64)) to build the docker image.
+
+###### Building docker image:
+Setup the environment variable  
+ `$ export GIT_COMMIT="$(git rev-parse HEAD)"`
+ 
+Build the docker image on the host machine, this docker image will also contain the sample app  
+ `$ docker build -f Dockerfile.aarch64 --build-arg AFFECTIVA_ICS_SDK_URL=<download URL> --build-arg BRANCH=<branch of this repo> --tag=affectiva:ics-sdk-$GIT_COMMIT .`
+
+Above command will generate the artifact (sample app), which we'll push it to the target device (Qualcomm SA-8155P development board)
+
+###### Run this container interactively (optional): 
+ `$ docker run -it --rm affectiva:ics-sdk-$GIT_COMMIT`
+
+
+### To copy artifact from docker image and push it to the target device
+Create and start a docker container.  
+`$ docker create -ti --name affectiva-ics-sdk affectiva:ics-sdk-$GIT_COMMIT bash` 
+
+Copy the generated artifact (which was created during docker build) to specified path.  
+`$ docker cp affectiva-ics-sdk:/opt/testapp-artifact.tar.gz <target/path/to/copy/artifact>` 
+
+Delete the created container.  
+`$ docker rm -f affectiva-ics-sdk` 
+
+Now, setup your adb device where you'll test the app, for more info on adb ([click here](https://developer.android.com/studio/command-line/adb )) 
+
+It is recommended to run all the below commands after running `sudo -s` on the terminal.
+
+Restart adb connection with root privileges (use this before starting any push operations).  
+`$ adb root` 
+
+Confirm that your host computer is connected to the target device:  
+`$ adb devices`
+
+After establishing successful connection to the target device (can be verified by `$ adb devices`), push the artifact to it by using following command
+
+`$ adb push <path/where/the/artifact/resides> <path/on/the/target/device>`
+
+Usually it's recommended to push the application to `/data/loca/tmp/` directory on the target device.
+One can either push the .tar.gz file directly and then extract it on the target device or extract the file locally and then push it to the target device. 
+The former method is faster and easier
+
+Copy the artifact, and use same approach to copy any other files to the target device.   
+`$ adb push testapp-artifact.tar.gz /data/loca/tmp/` 
+
+Note:: The above step might take up to 100 secs, depends on the transfer speed.
+
+### To setup and run frame-detector-video-demo on the target device
+
+Enter into android's shell env.  
+`$ adb shell`  
+
+Go into the tmp directory where the artifact was pushed or copied.  
+`$ cd /data/local/tmp/` 
+
+Create a testapp directory.  
+`$ mkdir affectiva-cpp-testapp`
+
+Extract artifact into the current directory.  
+`$ tar -xf testapp-artifact.tar.gz -C affectiva-cpp-testapp`
+
+Set $LD_LIBRARY_PATH env variable.  
+`$ export LD_LIBRARY_PATH=/data/local/tmp/affectiva-cpp-testapp/lib/arm64-v8a`
+
+Set data directory $AFFECTIVA_VISION_DATA_DIR env variable.  
+`$ export AFFECTIVA_VISION_DATA_DIR=/data/local/tmp/affectiva-cpp-testapp/data`
+
+Change the directory where the sample app is present.  
+`$ cd affectiva-cpp-testapp/bin`
+
+run the command `./frame-detector-video-demo --help` for information on how to run it. Here's the snippet of `--help` menu
 ```
-# create a build directory
-mkdir vision-samples-build/ vision-samples-install/
-cd vision-samples-build
-
-CMAKE_ARGS="-DCMAKE_BUILD_TYPE=Release \
--DAFFECTIVA_SDK_DIR=/path/to/auto-sdk \
--DBOOST_ROOT=/path/to/boost-build \
--DOpenCV_DIR=/usr/ \
--DCMAKE_INSTALL_PREFIX=/path/to/cpp-sdk-samples/vision/vision-samples-install"
-
-cmake $CMAKE_ARGS /path/to/cpp-sdk-samples/vision
-make -j4
-make install
-
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$AFFECTIVA_SDK_DIR/lib
+Project for demoing the Affectiva Detector class (processing video files).:
+  -h [ --help ]         Display this help message.
+  -d [ --data ] arg     Path to the data folder. Alternatively, specify the 
+                        path via the environment variable 
+                        AFFECTIVA_VISION_DATA_DIR=/path/to/data
+  -i [ --input ] arg    Video file to processs
+  -o [ --output ] arg   Output video path.
+  --sfps arg (=0)       Input sampling frame rate. Default is 0, which means 
+                        the app will respect the video's FPS and read all 
+                        frames
+  --numFaces arg (=5)   Number of faces to be tracked.
+  --loop                Loop over the video being processed.
+  --face_id             Draw face id on screen. Note: Drawing to screen should 
+                        be enabled.
+  -q [ --quiet ]        Disable logging to console
+  --occupant            Enable occupant detection
 ```
 
-## Additional Note
+eg: `$ ./frame-detector-video-demo -i input_video.mp4 `
 
-The Affectiva SDK statically links a customized version of OpenCV, so if you run into double free or corruption errors, then you will need to preload the OpenCV library installed from package manager.
+Above command will create .csv file in the same directory where the input video is present, in this case it will create input_video_faces.csv. To pull this file from the target device to host machine, do the following steps.
+ 
+Log out from the target device.  
+ `$ exit` 
+ 
+Copy/pull csv file to current directory from target device.  
+ `$ adb pull /data/local/tmp/affectiva-cpp-testapp/bin/input_video_faces.csv` 
+ 
+If also using `-o output_video.avi` option, then `output_video.avi` file can also be pulled from target device same way  
+ `$ adb pull /data/local/tmp/affectiva-cpp-testapp/bin/output_video.avi`
+ 
 
-Use this command to find the path of libopencv_core.so.2.4
-
-`ldconfig -p | grep libopencv_core.so.2.4`
-
-Then set LD_PRELOAD to ensure it gets loaded first at runtime:
-`export LD_PRELOAD=/path/to/libopencv_core.so.2.4`
-
-
-##Docker Build Instructions
-
-A Dockerfile is located in the top-level directory of this repo ([here](../Dockerfile)). To build the docker image, please refer to that file for instructions.
+Note: 
+- We currently only support avi file format for output video
+- Once you logout from the target device all the environment variables are deleted. 
+- This example code has been tested on the Qualcomm SA-8155P development board

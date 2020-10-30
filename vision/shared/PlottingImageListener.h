@@ -13,14 +13,14 @@ public:
 
     PlottingImageListener(std::ofstream& csv, ProgramOptionsWebcam& program_options ) :
         PlottingListener(csv, program_options.draw_display, !program_options.disable_logging), capture_last_ts_(0),
-        process_fps_(0), capture_fps_(0), draw_face_id_(program_options.draw_id), frames_with_faces_(0),
+        capture_fps_(0), draw_face_id_(program_options.draw_id), frames_with_faces_(0),
         show_drowsiness_(program_options.show_drowsiness) {
         setCSVHeaders();
     }
 
     PlottingImageListener(std::ofstream& csv, ProgramOptionsVideo& program_options ) :
         PlottingListener(csv, program_options.draw_display, !program_options.disable_logging), capture_last_ts_(0),
-        process_fps_(0), capture_fps_(0), draw_face_id_(program_options.draw_id), frames_with_faces_(0),
+        capture_fps_(0), draw_face_id_(program_options.draw_id), frames_with_faces_(0),
         show_drowsiness_(program_options.show_drowsiness) {
         setCSVHeaders();
     }
@@ -53,21 +53,15 @@ public:
         return capture_fps_;
     }
 
-    void onImageResults(std::map<vision::FaceId, vision::Face> faces, vision::Frame image) override {
+    void onImageResults(std::map<vision::FaceId, vision::Face> faces, vision::Frame frame) override {
         std::lock_guard<std::mutex> lg(mtx);
-        const int diff = image.getTimestamp() - process_last_ts_;
-        if (diff > 0) {
-            results_.emplace_back(image, faces);
-            process_fps_ = 1000.0f / diff;
-            process_last_ts_ = image.getTimestamp();
-
-            processed_frames_++;
-            if (!faces.empty()) {
-                frames_with_faces_++;
-            }
+        stopTimer(frame.getTimestamp());
+        results_.emplace_back(frame, faces);
+        ++processed_frames_;
+        if (!faces.empty()) {
+            ++frames_with_faces_;
         }
-
-    };
+    }
 
     void onImageCapture(vision::Frame image) override {
         std::lock_guard<std::mutex> lg(mtx);
@@ -194,26 +188,21 @@ public:
         return (static_cast<float>(frames_with_faces_) / processed_frames_) * 100;
     }
 
-    int getProcessingFrameRate() {
-        std::lock_guard<std::mutex> lg(mtx);
-        return process_fps_;
-    }
 
     void reset() override {
         std::lock_guard<std::mutex> lg(mtx);
         capture_last_ts_ = 0;
         capture_fps_ = 0;
         process_last_ts_ = 0;
-        process_fps_ = 0;
-        start_ = std::chrono::system_clock::now();
         processed_frames_ = 0;
         frames_with_faces_ = 0;
+        process_fps_ = 0.0f;
+        instantaneous_fps_ = 0.0f;
         results_.clear();
     }
 
 private:
     Timestamp capture_last_ts_;
-    int process_fps_;
     int capture_fps_;
     bool draw_face_id_;
     int frames_with_faces_;

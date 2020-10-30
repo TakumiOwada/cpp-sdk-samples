@@ -277,13 +277,13 @@ void Visualizer::drawText(const std::string& name, const std::string& value,
     cv::putText(img, label + value, display_loc, cv::FONT_HERSHEY_SIMPLEX, 0.5f, std::move(color), 1);
 }
 
-void Visualizer::drawBodyMetrics(std::map<BodyPoint, Point>& body_points) {
+void Visualizer::drawBodyMetrics(const std::map<BodyPoint, Point>& body_points) {
     //draw lines between two decided body points
     for (const auto& color_edges : COLOR_EDGES_PAIR) {
         if (body_points.find(color_edges.start_) != body_points.end() &&
             body_points.find(color_edges.end_) != body_points.end()) {
-            const Point pt1 = body_points[color_edges.start_];
-            const Point pt2 = body_points[color_edges.end_];
+            const Point pt1 = body_points.at(color_edges.start_);
+            const Point pt2 = body_points.at(color_edges.end_);
 
             cv::line(img, cv::Point(pt1.x, pt1.y), cv::Point(pt2.x, pt2.y), color_edges.color_, 3);
         }
@@ -293,46 +293,46 @@ void Visualizer::drawBodyMetrics(std::map<BodyPoint, Point>& body_points) {
 void Visualizer::drawOccupantMetrics(const affdex::vision::Occupant& occupant) {
 
     // Draw occupant bounding box
-    auto bbox = {occupant.boundingBox.getTopLeft(), occupant.boundingBox.getBottomRight()};
+    auto bbox = {occupant.getBoundingBox().getTopLeft(), occupant.getBoundingBox().getBottomRight()};
     drawBoundingBox(bbox, {199, 110, 255});
 
     //Do not draw if polygon's ID is Unknown
-    if (occupant.matchedSeat.cabinRegion.id != REGION_UNKNOWN) {
-        drawPolygon(occupant.matchedSeat.cabinRegion.vertices, {255, 255, 255});
+    if (occupant.getMatchedSeat().cabinRegion.id != REGION_UNKNOWN) {
+        drawPolygon(occupant.getMatchedSeat().cabinRegion.vertices, {255, 255, 255});
     }
 
-    int padding = occupant.boundingBox.getTopLeft().y; //Top left Y
+    int padding = occupant.getBoundingBox().getTopLeft().y; //Top left Y
 
-    const std::string id(std::to_string(occupant.matchedSeat.cabinRegion.id));
-    const std::string region_type(affdex::vision::CabinRegion::typeToString(occupant.matchedSeat.cabinRegion.type));
-    const std::string match_confidence(std::to_string(occupant.matchedSeat.matchConfidence));
+    const std::string id(std::to_string(occupant.getMatchedSeat().cabinRegion.id));
+    const std::string region_type(affdex::vision::CabinRegion::typeToString(occupant.getMatchedSeat().cabinRegion.type));
+    const std::string match_confidence(std::to_string(occupant.getMatchedSeat().matchConfidence));
 
-    drawText("Region Confidence", match_confidence, cv::Point(occupant.boundingBox.getTopLeft().x, padding -= spacing),
+    drawText("Region Confidence", match_confidence, cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing),
              false);
-    drawText("Region " + id, region_type, cv::Point(occupant.boundingBox.getTopLeft().x, padding -= spacing), false);
-    drawText("ID", std::to_string(occupant.id), cv::Point(occupant.boundingBox.getTopLeft().x, padding -= spacing), false);
-    if (occupant.face) {
-        drawText("FaceID", std::to_string(occupant.face->getId()), cv::Point(occupant.boundingBox.getTopLeft().x, padding -= spacing), false);
+    drawText("Region " + id, region_type, cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing), false);
+    drawText("ID", std::to_string(occupant.getId()), cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing), false);
+    if (occupant.getFace()) {
+        drawText("FaceID", std::to_string(occupant.getFace()->getId()), cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing), false);
 //        drawBoundingBox(occupant.face->getBoundingBox(), {0, 0, 255});
     }
-    if (occupant.body) {
-        drawText("BodyID", std::to_string(occupant.body->id), cv::Point(occupant.boundingBox.getTopLeft().x, padding -= spacing), false);
-        drawBodyMetrics(occupant.body->body_points);
+    if (occupant.getBody()) {
+        drawText("BodyID", std::to_string(occupant.getBody()->getId()), cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing), false);
+        drawBodyMetrics(occupant.getBody()->getBodyPoints());
     }
 }
 
 void Visualizer::drawObjectMetrics(const affdex::vision::Object& object) {
 
     // Draw object bounding box
-    auto bbox = {object.boundingBox.getTopLeft(), object.boundingBox.getBottomRight()};
+    auto bbox = {object.getBoundingBox().getTopLeft(), object.getBoundingBox().getBottomRight()};
 
     //default color ==GRAY
     cv::Scalar color(128, 128, 128);
-    if (object.type == Object::Type::PHONE) {
+    if (object.getType() == Object::Type::PHONE) {
         //phone color == YELLOW
         color = {0, 255, 255};
     }
-    else if (object.type == Object::Type::CHILD_SEAT) {
+    else if (object.getType() == Object::Type::CHILD_SEAT) {
         //child seat color == RED
         color = {0, 0, 255};
     }
@@ -340,15 +340,15 @@ void Visualizer::drawObjectMetrics(const affdex::vision::Object& object) {
     //Configured area region;
     drawBoundingBox(bbox, color);
 
-    const auto matched_region = object.matchedRegions[0];
+    const auto matched_region = object.getMatchedRegions()[0];
     //Do not draw if polygon's ID is Unknown
     if (matched_region.cabinRegion.id != REGION_UNKNOWN) {
         drawPolygon(matched_region.cabinRegion.vertices, {255, 255, 255});
     }
 
-    int padding = object.boundingBox.getTopLeft().y; //Top left Y
+    int padding = object.getBoundingBox().getTopLeft().y; //Top left Y
 
-    drawText("Type", PlottingObjectListener::typeToString(object.type), cv::Point(object.boundingBox.getTopLeft().x,
+    drawText("Type", PlottingObjectListener::typeToString(object.getType()), cv::Point(object.getBoundingBox().getTopLeft().x,
                                                                                   padding -=
                                                                                       spacing),
              false);
@@ -357,20 +357,20 @@ void Visualizer::drawObjectMetrics(const affdex::vision::Object& object) {
     const std::string
         region_type(affdex::vision::CabinRegion::typeToString(matched_region.cabinRegion.type));
 
-    const std::string confidence(std::to_string(object.confidence));
+    const std::string confidence(std::to_string(object.getConfidence()));
     const std::string regions_confidence(std::to_string(matched_region.matchConfidence));
 
     drawText("Object Confidence",
              confidence,
-             cv::Point(object.boundingBox.getTopLeft().x, padding -= spacing),
+             cv::Point(object.getBoundingBox().getTopLeft().x, padding -= spacing),
              false);
 
     drawText("Region Confidence",
              regions_confidence,
-             cv::Point(object.boundingBox.getTopLeft().x, padding -= spacing),
+             cv::Point(object.getBoundingBox().getTopLeft().x, padding -= spacing),
              false);
 
-    drawText("Region " + id, region_type, cv::Point(object.boundingBox.getTopLeft().x, padding -= spacing), false);
+    drawText("Region " + id, region_type, cv::Point(object.getBoundingBox().getTopLeft().x, padding -= spacing), false);
 }
 
 void Visualizer::drawClassifierOutput(const std::string& classifier,

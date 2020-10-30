@@ -37,19 +37,21 @@ uint64_t VideoReader::TotalFrames() const {
     return total_frames_;
 }
 
-bool VideoReader::GetFrame(cv::Mat& bgr_frame, affdex::Timestamp& timestamp_ms) {
+bool VideoReader::GetFrame(cv::Mat& bgr_frame, affdex::Timestamp& timestamp_ms, bool show_progress) {
     bool frame_data_loaded;
 
     do {
         frame_data_loaded = GetFrameData(bgr_frame, timestamp_ms);
-        if (frame_data_loaded) {
+        if (show_progress && frame_data_loaded) {
             current_frame_++;
         }
     } while ((sampling_frame_rate_ > 0) && (timestamp_ms > 0) &&
         ((timestamp_ms - last_timestamp_ms_) < 1000 / sampling_frame_rate_) && frame_data_loaded);
 
     last_timestamp_ms_ = timestamp_ms;
-    frame_progress_->progressed(current_frame_);
+    if(show_progress) {
+        frame_progress_->progressed(current_frame_);
+    }
     return frame_data_loaded;
 }
 
@@ -97,7 +99,7 @@ void VideoReader::SniffResolution(const boost::filesystem::path& path,
     cv::Mat bgr_frame;
     affdex::Timestamp timestamp_msec;
     height = width = 0;
-    while (timestamps.size() < N_SNIFF_FRAMES && video.GetFrameData(bgr_frame, timestamp_msec)) {
+    while (timestamps.size() < N_SNIFF_FRAMES && video.GetFrame(bgr_frame, timestamp_msec, false)) {
         if (timestamp_msec >= 0) {
             timestamps.push_back(timestamp_msec);
         }
@@ -112,7 +114,6 @@ void VideoReader::SniffResolution(const boost::filesystem::path& path,
     }
 
     // Divide time by (N_frames - 1) since we're after duration that the frames were on screen
-    //below code is to fix the rounding issue
-    double temp = ((timestamps.size() - 1) * 1000.0) / ((timestamps[timestamps.size() - 1]) - timestamps[0]);
-    fps = (int)std::round((temp < 0 ? temp - 0.5 : temp + 0.5));
+    fps = ((timestamps.size() - 1) * 1000) / (timestamps[timestamps.size() - 1] - timestamps[0]);
+
 }
