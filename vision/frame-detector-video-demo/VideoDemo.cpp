@@ -14,6 +14,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
+
 #include <iostream>
 #include <iomanip>
 
@@ -93,8 +94,12 @@ void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_
             // create a Frame from the video input and process it with the Detector
             vision::Frame
                 f(mat.size().width, mat.size().height, mat.data, vision::Frame::ColorFormat::BGR, timestamp_ms);
+            object_listener.startTimer();
             detector.process(f);
             object_listener.processResults(f);
+
+            std::cout << "Screen-FPS: " << object_listener.getInstantaneousFrameRate() << " Processing-FPS: " << object_listener.getProcessingFrameRate() << std::endl;
+
             //To save output video file
             if (program_options.write_video) {
                 program_options.output_video << object_listener.getImageData();
@@ -144,8 +149,12 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
             // create a Frame from the video input and process it with the Detector
             vision::Frame
                 f(mat.size().width, mat.size().height, mat.data, vision::Frame::ColorFormat::BGR, timestamp_ms);
+            occupant_listener.startTimer();
             detector.process(f);
             occupant_listener.processResults(f);
+
+            std::cout << "Screen-FPS: " << occupant_listener.getInstantaneousFrameRate() << " Processing-FPS: " << occupant_listener.getProcessingFrameRate() << std::endl;
+
             //To save output video file
             if (program_options.write_video) {
                 program_options.output_video << occupant_listener.getImageData();
@@ -192,8 +201,13 @@ void processBodyVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_fi
             // create a Frame from the video input and process it with the Detector
             vision::Frame
                 f(mat.size().width, mat.size().height, mat.data, vision::Frame::ColorFormat::BGR, timestamp_ms);
+
+            body_listener.startTimer();
             detector.process(f);
             body_listener.processResults(f);
+
+            std::cout << "Screen-FPS: " << body_listener.getInstantaneousFrameRate() << " Processing-FPS: " << body_listener.getProcessingFrameRate() << std::endl;
+
             //To save output video file
             if (program_options.write_video) {
                 program_options.output_video << body_listener.getImageData();
@@ -234,6 +248,7 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
     // start the detector
     detector.start();
 
+
     do {
         // the VideoReader will handle decoding frames from the input video file
         VideoReader video_reader(program_options.input_video_path, program_options.sampling_frame_rate);
@@ -244,8 +259,13 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
             // create a Frame from the video input and process it with the Detector
             vision::Frame
                 f(mat.size().width, mat.size().height, mat.data, vision::Frame::ColorFormat::BGR, timestamp_ms);
+
+            image_listener.startTimer();
             detector.process(f);
             image_listener.processResults(f);
+
+            std::cout << "Screen-FPS: " << image_listener.getInstantaneousFrameRate() << " Processing-FPS: " << image_listener.getProcessingFrameRate() << std::endl;
+
             //To save output video file
             if (program_options.write_video) {
                 program_options.output_video << image_listener.getImageData();

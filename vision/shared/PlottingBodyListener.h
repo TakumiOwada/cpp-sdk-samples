@@ -74,9 +74,8 @@ public:
     void onBodyResults(const std::map<vision::BodyId, vision::Body>& bodies,
                        vision::Frame frame) override {
         std::lock_guard<std::mutex> lg(mtx);
+        stopTimer(frame.getTimestamp());
         results_.emplace_back(frame, bodies);
-        process_last_ts_ = frame.getTimestamp();
-
         ++processed_frames_;
         if (!bodies.empty()) {
             ++frames_with_bodies_;
@@ -131,9 +130,10 @@ public:
     void reset() override {
         std::lock_guard<std::mutex> lg(mtx);
         process_last_ts_ = 0;
-        start_ = std::chrono::system_clock::now();
         processed_frames_ = 0;
         frames_with_bodies_ = 0;
+        process_fps_ = 0.0f;
+        instantaneous_fps_ = 0.0f;
         results_.clear();
     }
 
