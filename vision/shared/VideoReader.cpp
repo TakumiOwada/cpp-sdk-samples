@@ -114,6 +114,5 @@ void VideoReader::SniffResolution(const boost::filesystem::path& path,
     }
 
     // Divide time by (N_frames - 1) since we're after duration that the frames were on screen
-    fps = ((timestamps.size() - 1) * 1000) / (timestamps[timestamps.size() - 1] - timestamps[0]);
-
+    fps = std::round(((timestamps.size() - 1) * 1000.0) / (timestamps[timestamps.size() - 1] - timestamps[0]));
 }
