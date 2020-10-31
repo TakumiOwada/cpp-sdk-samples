@@ -42,13 +42,11 @@ public:
     virtual void reset() = 0;
 
     void drawRecentFrame() {
-        if (draw_display_) {
-            if (most_recent_frame_.getTimestamp() - time_callback_received_ <= timeout_) {
-                draw(latest_data_.second, most_recent_frame_);
-            }
-            else {
-                draw({}, most_recent_frame_);
-            }
+        if (most_recent_frame_.getTimestamp() - time_callback_received_ <= timeout_) {
+            draw(latest_data_.second, most_recent_frame_);
+        }
+        else {
+            draw({}, most_recent_frame_);
         }
     }
 
