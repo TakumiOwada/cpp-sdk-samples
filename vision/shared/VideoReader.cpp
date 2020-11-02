@@ -5,13 +5,11 @@
 
 using namespace std;
 
-VideoReader::VideoReader(const boost::filesystem::path& file_path, const int sampling_frame_rate)
+VideoReader::VideoReader(const boost::filesystem::path& file_path, float sampling_frame_rate)
     : sampling_frame_rate_(sampling_frame_rate) {
 
-    last_timestamp_ms_ =
-        sampling_frame_rate == 0
-        ? -1
-        : (0 - 1000 / sampling_frame_rate); // Initialize so that with sampling, we always process the first frame.
+    // Initialize so that with sampling, we always process the first frame.
+    last_timestamp_ms_ = sampling_frame_rate == 0 ? -1 :(0 - 1000 / sampling_frame_rate);
 
     set<boost::filesystem::path> SUPPORTED_EXTS = {
         // Videos
@@ -90,8 +88,8 @@ bool VideoReader::GetFrameData(cv::Mat& bgr_frame, affdex::Timestamp& timestamp_
 void VideoReader::SniffResolution(const boost::filesystem::path& path,
                                   int& height,
                                   int& width,
-                                  int& fps,
-                                  const int sampling_frame_rate) {
+                                  float& fps,
+                                  float sampling_frame_rate) {
     const unsigned int N_SNIFF_FRAMES = 11;   // Estimate from 10 frame durations by pulling the first 11 frames
 
     VideoReader video(path, sampling_frame_rate);
@@ -114,6 +112,6 @@ void VideoReader::SniffResolution(const boost::filesystem::path& path,
     }
 
     // Divide time by (N_frames - 1) since we're after duration that the frames were on screen
-    fps = ((timestamps.size() - 1) * 1000) / (timestamps[timestamps.size() - 1] - timestamps[0]);
+    fps = ((timestamps.size() - 1) * 1000.0) / (timestamps[timestamps.size() - 1] - timestamps[0]);
 
 }
