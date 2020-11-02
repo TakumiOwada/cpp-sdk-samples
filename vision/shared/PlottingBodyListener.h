@@ -119,7 +119,9 @@ public:
             viz_.drawBodyMetrics(body_points);
         }
 
-        viz_.showImage();
+        if (draw_display_) {
+            viz_.showImage();
+        }
         image_data_ = viz_.getImageData();
     }
 

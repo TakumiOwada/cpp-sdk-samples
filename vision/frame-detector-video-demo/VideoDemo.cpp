@@ -98,7 +98,7 @@ void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_
             detector.process(f);
             object_listener.processResults(f);
 
-            std::cout << "Screen-FPS: " << object_listener.getInstantaneousFrameRate() << " Processing-FPS: " << object_listener.getProcessingFrameRate() << std::endl;
+            std::cout << "Timestamp: " << timestamp_ms << " Processing-FPS: " << object_listener.getProcessingFrameRate() << std::endl;
 
             //To save output video file
             if (program_options.write_video) {
@@ -153,7 +153,7 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
             detector.process(f);
             occupant_listener.processResults(f);
 
-            std::cout << "Screen-FPS: " << occupant_listener.getInstantaneousFrameRate() << " Processing-FPS: " << occupant_listener.getProcessingFrameRate() << std::endl;
+            std::cout << "Timestamp: " << timestamp_ms << " Processing-FPS: " << occupant_listener.getProcessingFrameRate() << std::endl;
 
             //To save output video file
             if (program_options.write_video) {
@@ -206,7 +206,7 @@ void processBodyVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_fi
             detector.process(f);
             body_listener.processResults(f);
 
-            std::cout << "Screen-FPS: " << body_listener.getInstantaneousFrameRate() << " Processing-FPS: " << body_listener.getProcessingFrameRate() << std::endl;
+            std::cout << "Timestamp: " << timestamp_ms << " Processing-FPS: " << body_listener.getProcessingFrameRate() << std::endl;
 
             //To save output video file
             if (program_options.write_video) {
@@ -264,7 +264,7 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
             detector.process(f);
             image_listener.processResults(f);
 
-            std::cout << "Screen-FPS: " << image_listener.getInstantaneousFrameRate() << " Processing-FPS: " << image_listener.getProcessingFrameRate() << std::endl;
+            std::cout << "Timestamp: " << timestamp_ms << " Processing-FPS: " << image_listener.getProcessingFrameRate() << std::endl;
 
             //To save output video file
             if (program_options.write_video) {
