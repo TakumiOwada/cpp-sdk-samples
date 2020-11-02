@@ -43,7 +43,7 @@ void assembleProgramOptions(po::options_description& description, ProgramOptions
         ("output,o", po::value<affdex::Path>(&program_options.output_video_path), "Output video path.")
 #endif // _WIN32
         ("sfps",
-         po::value<unsigned int>(&program_options.sampling_frame_rate)->default_value(0),
+         po::value<float>(&program_options.sampling_frame_rate)->default_value(-1.0f),
          "Input sampling frame rate. Default is 0, which means the app will respect the video's FPS and read all frames")
         ("draw", po::value<bool>(&program_options.draw_display)->default_value(true), "Draw video on screen.")
         ("numFaces", po::value<unsigned int>(&program_options.num_faces)->default_value(5), "Number of faces to be "
@@ -86,7 +86,7 @@ void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_
 
     do {
         // the VideoReader will handle decoding frames from the input video file
-        VideoReader video_reader(program_options.input_video_path, program_options.sampling_frame_rate);
+        VideoReader video_reader(program_options.input_video_path);
 
         cv::Mat mat;
         Timestamp timestamp_ms;
@@ -141,7 +141,7 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
 
     do {
         // the VideoReader will handle decoding frames from the input video file
-        VideoReader video_reader(program_options.input_video_path, program_options.sampling_frame_rate);
+        VideoReader video_reader(program_options.input_video_path);
 
         cv::Mat mat;
         Timestamp timestamp_ms;
@@ -193,7 +193,7 @@ void processBodyVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_fi
 
     do {
         // the VideoReader will handle decoding frames from the input video file
-        VideoReader video_reader(program_options.input_video_path, program_options.sampling_frame_rate);
+        VideoReader video_reader(program_options.input_video_path);
 
         cv::Mat mat;
         Timestamp timestamp_ms;
@@ -251,7 +251,7 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
 
     do {
         // the VideoReader will handle decoding frames from the input video file
-        VideoReader video_reader(program_options.input_video_path, program_options.sampling_frame_rate);
+        VideoReader video_reader(program_options.input_video_path);
 
         cv::Mat mat;
         Timestamp timestamp_ms;
@@ -401,12 +401,13 @@ int main(int argsc, char** argsv) {
         }
 
         //Get resolution and fps from input video
-        int sniffed_fps, frameHeight, frameWidth;
+        float sniffed_fps;
+        int frameHeight, frameWidth;
         VideoReader::SniffResolution(program_options.input_video_path, frameHeight, frameWidth, sniffed_fps);
-        if (program_options.sampling_frame_rate == 0) {
+        if (program_options.sampling_frame_rate <= 0) {
             // If user did not specify --sfps (i.e. // default of 0), used the sniffed_fps
             program_options.sampling_frame_rate = sniffed_fps;
-            std::cout << "Using estimated video FPS for output video: " << sniffed_fps;
+            std::cout << "Using estimated video FPS for output video: " << sniffed_fps <<std::endl;
         }
 
         //Setup video writer
