@@ -409,11 +409,10 @@ int main(int argsc, char** argsv) {
 
         //Get resolution and fps from input video
         cv::VideoCapture video(program_options.input_video_path);
-        float sniffed_fps = video.get(CV_CAP_PROP_FPS);
-        int frameHeight = video.get(CV_CAP_PROP_FRAME_HEIGHT);
-        int frameWidth = video.get(CV_CAP_PROP_FRAME_WIDTH);
+        auto sniffed_fps = static_cast<float>(video.get(CV_CAP_PROP_FPS));
+        int frameHeight = static_cast<int>(video.get(CV_CAP_PROP_FRAME_HEIGHT));
+        int frameWidth = static_cast<int>(video.get(CV_CAP_PROP_FRAME_WIDTH));
         video.release();
-        //VideoReader::SniffResolution(program_options.input_video_path, frameHeight, frameWidth, sniffed_fps);
         if (program_options.sampling_frame_rate <= 0) {
             // If user did not specify --sfps (i.e. // default of 0), used the sniffed_fps
             program_options.sampling_frame_rate = sniffed_fps;

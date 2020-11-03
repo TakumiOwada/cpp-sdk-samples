@@ -48,7 +48,7 @@ void assembleProgramOptions(po::options_description& description, ProgramOptions
          po::value<std::vector<int>
          >(&program_options.resolution)->default_value(DEFAULT_RESOLUTION, "1280 720")->multitoken(),
          "Resolution in pixels (2-values): width height")
-        ("pfps", po::value<int>(&program_options.process_framerate)->default_value(30), "Processing framerate.")
+        ("pfps", po::value<float>(&program_options.process_framerate)->default_value(30.f), "Processing framerate.")
         ("cfps", po::value<int>(&program_options.camera_framerate)->default_value(30), "Camera capture framerate.")
         ("cid", po::value<int>(&program_options.camera_id)->default_value(0), "Camera ID.")
         ("numFaces",
