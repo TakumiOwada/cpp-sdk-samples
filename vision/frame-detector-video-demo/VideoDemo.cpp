@@ -112,6 +112,8 @@ void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_
              << "Object types detected: " << object_listener.getObjectTypesDetected() << endl
              << "Objects detected in regions " << object_listener.getObjectRegionsDetected() << endl
              << "Object callback interval: " << object_listener.getCallBackInterval() << endl
+             << "Frames processed per second: "
+             << object_listener.getProcessedFrames() * 1.0f / object_listener.getTotalTimeToProcessFrames() << endl
              << "******************************************************************\n";
 
         detector.reset();
@@ -166,6 +168,8 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
              << "%\n"
              << "Occupants detected in regions:  " << occupant_listener.getOccupantRegionsDetected() << endl
              << "Occupant callback interval: " << occupant_listener.getCallbackInterval() << "ms\n"
+             << "Frames processed per second: "
+             << occupant_listener.getProcessedFrames() * 1.0f / occupant_listener.getTotalTimeToProcessFrames() << endl
              << "******************************************************************\n";
 
         detector.reset();
@@ -218,6 +222,8 @@ void processBodyVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_fi
              << "Percent of samples w/bodies present: " << body_listener.getSamplesWithBodiesPercent()
              << "%\n"
              << "Body callback interval: " << body_listener.getCallbackInterval() << "ms\n"
+             << "Frames processed per second: "
+             << body_listener.getProcessedFrames() * 1.0f / body_listener.getTotalTimeToProcessFrames() << endl
              << "******************************************************************\n";
 
         detector.reset();
@@ -248,7 +254,6 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
     // start the detector
     detector.start();
 
-
     do {
         // the VideoReader will handle decoding frames from the input video file
         VideoReader video_reader(program_options.input_video_path);
@@ -276,6 +281,8 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
              << "Processed Frame count: " << image_listener.getProcessedFrames() << endl
              << "Frames w/faces: " << image_listener.getFramesWithFaces() << endl
              << "Percent of frames w/faces: " << image_listener.getFramesWithFacesPercent() << "%\n"
+             << "Frames processed per second: " <<
+             image_listener.getProcessedFrames() * 1.0f / image_listener.getTotalTimeToProcessFrames() << endl
              << "******************************************************************\n";
 
         detector.reset();
@@ -401,9 +408,12 @@ int main(int argsc, char** argsv) {
         }
 
         //Get resolution and fps from input video
-        float sniffed_fps;
-        int frameHeight, frameWidth;
-        VideoReader::SniffResolution(program_options.input_video_path, frameHeight, frameWidth, sniffed_fps);
+        cv::VideoCapture video(program_options.input_video_path);
+        float sniffed_fps = video.get(CV_CAP_PROP_FPS);
+        int frameHeight = video.get(CV_CAP_PROP_FRAME_HEIGHT);
+        int frameWidth = video.get(CV_CAP_PROP_FRAME_WIDTH);
+        video.release();
+        //VideoReader::SniffResolution(program_options.input_video_path, frameHeight, frameWidth, sniffed_fps);
         if (program_options.sampling_frame_rate <= 0) {
             // If user did not specify --sfps (i.e. // default of 0), used the sniffed_fps
             program_options.sampling_frame_rate = sniffed_fps;

@@ -121,7 +121,6 @@ bool processFrameFromWebcam(std::unique_ptr<vision::Detector>& frame_detector, P
 
     // Create a Frame from the webcam image and process it with the Detector
     frame = vision::Frame(img.size().width, img.size().height, img.data, vision::Frame::ColorFormat::BGR, ts);
-
     if (program_options.sync) {
         dynamic_cast<vision::SyncFrameDetector*>(frame_detector.get())->process(frame);
     }

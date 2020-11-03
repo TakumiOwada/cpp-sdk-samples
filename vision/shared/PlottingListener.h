@@ -12,7 +12,6 @@
 #include <iomanip>
 #include <chrono>
 
-
 using namespace affdex;
 
 template<typename T> class PlottingListener {
@@ -25,7 +24,8 @@ public:
         draw_display_(draw_display),
         processed_frames_(0),
         logging_enabled_(enable_logging),
-        process_fps_(0) {
+        process_fps_(0),
+        total_time_to_process_frames_(0) {
     }
 
     int getProcessedFrames() {
@@ -78,9 +78,10 @@ public:
         else {
             instantaneous_fps_ = 0;
         }
-        process_fps_ = 1000.0 /std::chrono::duration_cast<std::chrono::milliseconds>(end_ - begin_).count();
+        const auto timer_diff = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - begin_).count();
+        total_time_to_process_frames_ += timer_diff;
+        process_fps_ = 1000.0 / timer_diff;
         process_last_ts_ = timestamp_ms;
-
     }
 
     float getProcessingFrameRate() {
@@ -91,6 +92,11 @@ public:
     float getInstantaneousFrameRate() {
         std::lock_guard<std::mutex> lg(mtx);
         return instantaneous_fps_;
+    }
+
+    long getTotalTimeToProcessFrames() {
+        //convert from milliseconds to seconds
+        return total_time_to_process_frames_ * 1e-3;
     }
 
 protected:
@@ -114,5 +120,5 @@ protected:
     float instantaneous_fps_;
     std::chrono::steady_clock::time_point begin_;
     std::chrono::steady_clock::time_point end_;
-
+    long total_time_to_process_frames_;
 };
