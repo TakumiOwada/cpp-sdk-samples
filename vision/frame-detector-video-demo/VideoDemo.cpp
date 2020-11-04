@@ -98,8 +98,6 @@ void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_
             detector.process(f);
             object_listener.processResults(f);
 
-            std::cout << "Timestamp: " << timestamp_ms << " Processing-FPS: " << object_listener.getProcessingFrameRate() << std::endl;
-
             //To save output video file
             if (program_options.write_video) {
                 program_options.output_video << object_listener.getImageData();
@@ -112,6 +110,9 @@ void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_
              << "Object types detected: " << object_listener.getObjectTypesDetected() << endl
              << "Objects detected in regions " << object_listener.getObjectRegionsDetected() << endl
              << "Object callback interval: " << object_listener.getCallBackInterval() << endl
+             << "Average processed fps: "
+             << object_listener.totalFramesCount() * 1.0f / object_listener.getTotalTimeToProcessFrames()
+             << " (detector ran every " << object_listener.getCallBackInterval()<< ")\n"
              << "******************************************************************\n";
 
         detector.reset();
@@ -153,8 +154,6 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
             detector.process(f);
             occupant_listener.processResults(f);
 
-            std::cout << "Timestamp: " << timestamp_ms << " Processing-FPS: " << occupant_listener.getProcessingFrameRate() << std::endl;
-
             //To save output video file
             if (program_options.write_video) {
                 program_options.output_video << occupant_listener.getImageData();
@@ -166,6 +165,9 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
              << "%\n"
              << "Occupants detected in regions:  " << occupant_listener.getOccupantRegionsDetected() << endl
              << "Occupant callback interval: " << occupant_listener.getCallbackInterval() << "ms\n"
+             << "Average processed fps: "
+             << occupant_listener.totalFramesCount() * 1.0f / occupant_listener.getTotalTimeToProcessFrames()
+             << " (detector ran every " << occupant_listener.getCallbackInterval()<< "ms)\n"
              << "******************************************************************\n";
 
         detector.reset();
@@ -206,8 +208,6 @@ void processBodyVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_fi
             detector.process(f);
             body_listener.processResults(f);
 
-            std::cout << "Timestamp: " << timestamp_ms << " Processing-FPS: " << body_listener.getProcessingFrameRate() << std::endl;
-
             //To save output video file
             if (program_options.write_video) {
                 program_options.output_video << body_listener.getImageData();
@@ -218,6 +218,9 @@ void processBodyVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_fi
              << "Percent of samples w/bodies present: " << body_listener.getSamplesWithBodiesPercent()
              << "%\n"
              << "Body callback interval: " << body_listener.getCallbackInterval() << "ms\n"
+             << "Average processed fps: "
+             << body_listener.totalFramesCount() * 1.0f / body_listener.getTotalTimeToProcessFrames()
+             << " (detector ran every " << body_listener.getCallbackInterval()<< "ms)\n"
              << "******************************************************************\n";
 
         detector.reset();
@@ -248,7 +251,6 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
     // start the detector
     detector.start();
 
-
     do {
         // the VideoReader will handle decoding frames from the input video file
         VideoReader video_reader(program_options.input_video_path);
@@ -264,8 +266,6 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
             detector.process(f);
             image_listener.processResults(f);
 
-            std::cout << "Timestamp: " << timestamp_ms << " Processing-FPS: " << image_listener.getProcessingFrameRate() << std::endl;
-
             //To save output video file
             if (program_options.write_video) {
                 program_options.output_video << image_listener.getImageData();
@@ -276,6 +276,8 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
              << "Processed Frame count: " << image_listener.getProcessedFrames() << endl
              << "Frames w/faces: " << image_listener.getFramesWithFaces() << endl
              << "Percent of frames w/faces: " << image_listener.getFramesWithFacesPercent() << "%\n"
+             << "Average processed fps: " <<
+             image_listener.totalFramesCount() * 1.0f / image_listener.getTotalTimeToProcessFrames() << endl
              << "******************************************************************\n";
 
         detector.reset();
@@ -401,9 +403,11 @@ int main(int argsc, char** argsv) {
         }
 
         //Get resolution and fps from input video
-        float sniffed_fps;
-        int frameHeight, frameWidth;
-        VideoReader::SniffResolution(program_options.input_video_path, frameHeight, frameWidth, sniffed_fps);
+        cv::VideoCapture video(program_options.input_video_path);
+        auto sniffed_fps = static_cast<float>(video.get(CV_CAP_PROP_FPS));
+        int frameHeight = static_cast<int>(video.get(CV_CAP_PROP_FRAME_HEIGHT));
+        int frameWidth = static_cast<int>(video.get(CV_CAP_PROP_FRAME_WIDTH));
+        video.release();
         if (program_options.sampling_frame_rate <= 0) {
             // If user did not specify --sfps (i.e. // default of 0), used the sniffed_fps
             program_options.sampling_frame_rate = sniffed_fps;

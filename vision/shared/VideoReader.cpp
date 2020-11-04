@@ -35,21 +35,19 @@ uint64_t VideoReader::TotalFrames() const {
     return total_frames_;
 }
 
-bool VideoReader::GetFrame(cv::Mat& bgr_frame, affdex::Timestamp& timestamp_ms, bool show_progress) {
+bool VideoReader::GetFrame(cv::Mat& bgr_frame, affdex::Timestamp& timestamp_ms) {
     bool frame_data_loaded;
 
     do {
         frame_data_loaded = GetFrameData(bgr_frame, timestamp_ms);
-        if (show_progress && frame_data_loaded) {
+        if (frame_data_loaded) {
             current_frame_++;
         }
     } while ((sampling_frame_rate_ > 0) && (timestamp_ms > 0) &&
         ((timestamp_ms - last_timestamp_ms_) < 1000 / sampling_frame_rate_) && frame_data_loaded);
 
     last_timestamp_ms_ = timestamp_ms;
-    if(show_progress) {
-        frame_progress_->progressed(current_frame_);
-    }
+    frame_progress_->progressed(current_frame_);
     return frame_data_loaded;
 }
 
@@ -83,35 +81,4 @@ bool VideoReader::GetFrameData(cv::Mat& bgr_frame, affdex::Timestamp& timestamp_
     }
 
     return frame_found && frame_retrieved;
-}
-
-void VideoReader::SniffResolution(const boost::filesystem::path& path,
-                                  int& height,
-                                  int& width,
-                                  float& fps,
-                                  float sampling_frame_rate) {
-    const unsigned int N_SNIFF_FRAMES = 11;   // Estimate from 10 frame durations by pulling the first 11 frames
-
-    VideoReader video(path, sampling_frame_rate);
-    std::vector<affdex::Timestamp> timestamps;
-    cv::Mat bgr_frame;
-    affdex::Timestamp timestamp_msec;
-    height = width = 0;
-    while (timestamps.size() < N_SNIFF_FRAMES && video.GetFrame(bgr_frame, timestamp_msec, false)) {
-        if (timestamp_msec >= 0) {
-            timestamps.push_back(timestamp_msec);
-        }
-        if (!bgr_frame.empty()) {
-            height = bgr_frame.rows;
-            width = bgr_frame.cols;
-        }
-    }
-
-    if (timestamps.size() < 2) {
-        throw "Unable to estimate fps from input video: " + path.string();
-    }
-
-    // Divide time by (N_frames - 1) since we're after duration that the frames were on screen
-    fps = ((timestamps.size() - 1) * 1000.0) / (timestamps[timestamps.size() - 1] - timestamps[0]);
-
 }
