@@ -98,8 +98,6 @@ void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_
             detector.process(f);
             object_listener.processResults(f);
 
-            std::cout << "Timestamp: " << timestamp_ms << " Processing-FPS: " << object_listener.getProcessingFrameRate() << std::endl;
-
             //To save output video file
             if (program_options.write_video) {
                 program_options.output_video << object_listener.getImageData();
@@ -155,8 +153,6 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
             detector.process(f);
             occupant_listener.processResults(f);
 
-            std::cout << "Timestamp: " << timestamp_ms << " Processing-FPS: " << occupant_listener.getProcessingFrameRate() << std::endl;
-
             //To save output video file
             if (program_options.write_video) {
                 program_options.output_video << occupant_listener.getImageData();
@@ -209,8 +205,6 @@ void processBodyVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_fi
             body_listener.startTimer();
             detector.process(f);
             body_listener.processResults(f);
-
-            std::cout << "Timestamp: " << timestamp_ms << " Processing-FPS: " << body_listener.getProcessingFrameRate() << std::endl;
 
             //To save output video file
             if (program_options.write_video) {
@@ -268,8 +262,6 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
             image_listener.startTimer();
             detector.process(f);
             image_listener.processResults(f);
-
-            std::cout << "Timestamp: " << timestamp_ms << " Processing-FPS: " << image_listener.getProcessingFrameRate() << std::endl;
 
             //To save output video file
             if (program_options.write_video) {

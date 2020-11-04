@@ -32,7 +32,7 @@ public:
     void onOccupantResults(const std::map<vision::OccupantId, vision::Occupant>& occupants,
                            vision::Frame frame) override {
         std::lock_guard<std::mutex> lg(mtx);
-        stopTimer(frame.getTimestamp());
+        stopTimer();
         results_.emplace_back(frame, occupants);
         ++processed_frames_;
         if (!occupants.empty()) {
@@ -110,11 +110,9 @@ public:
 
     void reset() override {
         std::lock_guard<std::mutex> lg(mtx);
-        process_last_ts_ = 0;
         processed_frames_ = 0;
         frames_with_occupants_ = 0;
         process_fps_ = 0.0f;
-        instantaneous_fps_ = 0.0f;
         results_.clear();
     }
 

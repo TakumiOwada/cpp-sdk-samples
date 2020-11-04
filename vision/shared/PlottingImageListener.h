@@ -55,7 +55,7 @@ public:
 
     void onImageResults(std::map<vision::FaceId, vision::Face> faces, vision::Frame frame) override {
         std::lock_guard<std::mutex> lg(mtx);
-        stopTimer(frame.getTimestamp());
+        stopTimer();
         results_.emplace_back(frame, faces);
         ++processed_frames_;
         if (!faces.empty()) {
@@ -194,11 +194,9 @@ public:
         std::lock_guard<std::mutex> lg(mtx);
         capture_last_ts_ = 0;
         capture_fps_ = 0;
-        process_last_ts_ = 0;
         processed_frames_ = 0;
         frames_with_faces_ = 0;
         process_fps_ = 0.0f;
-        instantaneous_fps_ = 0.0f;
         results_.clear();
     }
 

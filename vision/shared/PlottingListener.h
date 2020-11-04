@@ -20,7 +20,6 @@ public:
     PlottingListener(std::ofstream& csv, bool draw_display, bool enable_logging) :
         out_stream_(csv),
         image_data_(),
-        process_last_ts_(0),
         draw_display_(draw_display),
         processed_frames_(0),
         logging_enabled_(enable_logging),
@@ -69,29 +68,16 @@ public:
         begin_ = std::chrono::steady_clock::now();
     }
 
-    void stopTimer(const Timestamp& timestamp_ms) {
+    void stopTimer() {
         end_ = std::chrono::steady_clock::now();
-        const int diff = timestamp_ms - process_last_ts_;
-        if (diff > 0) {
-            instantaneous_fps_ = 1000.0 / diff;
-        }
-        else {
-            instantaneous_fps_ = 0;
-        }
         const auto timer_diff = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - begin_).count();
         total_time_to_process_frames_ += timer_diff;
         process_fps_ = 1000.0 / timer_diff;
-        process_last_ts_ = timestamp_ms;
     }
 
     float getProcessingFrameRate() {
         std::lock_guard<std::mutex> lg(mtx);
         return process_fps_;
-    }
-
-    float getInstantaneousFrameRate() {
-        std::lock_guard<std::mutex> lg(mtx);
-        return instantaneous_fps_;
     }
 
     long getTotalTimeToProcessFrames() {
@@ -108,7 +94,6 @@ protected:
     std::mutex mtx;
 
     std::deque<frame_type_id_pair> results_;
-    Timestamp process_last_ts_;
     bool draw_display_;
     int processed_frames_;
     bool logging_enabled_;
@@ -117,7 +102,6 @@ protected:
     Timestamp time_callback_received_ = 0;
     Duration timeout_ = 500;
     float process_fps_;
-    float instantaneous_fps_;
     std::chrono::steady_clock::time_point begin_;
     std::chrono::steady_clock::time_point end_;
     long total_time_to_process_frames_;
