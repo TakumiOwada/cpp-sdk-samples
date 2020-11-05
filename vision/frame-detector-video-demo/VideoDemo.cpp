@@ -110,8 +110,9 @@ void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_
              << "Object types detected: " << object_listener.getObjectTypesDetected() << endl
              << "Objects detected in regions " << object_listener.getObjectRegionsDetected() << endl
              << "Object callback interval: " << object_listener.getCallBackInterval() << endl
-             << "Frames processed per second: "
-             << object_listener.getProcessedFrames() * 1.0f / object_listener.getTotalTimeToProcessFrames() << endl
+             << "Average processed fps: "
+             << object_listener.totalFramesCount() * 1.0f / object_listener.getTotalTimeToProcessFrames()
+             << " (detector ran every " << object_listener.getCallBackInterval()<< ")\n"
              << "******************************************************************\n";
 
         detector.reset();
@@ -164,8 +165,9 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
              << "%\n"
              << "Occupants detected in regions:  " << occupant_listener.getOccupantRegionsDetected() << endl
              << "Occupant callback interval: " << occupant_listener.getCallbackInterval() << "ms\n"
-             << "Frames processed per second: "
-             << occupant_listener.getProcessedFrames() * 1.0f / occupant_listener.getTotalTimeToProcessFrames() << endl
+             << "Average processed fps: "
+             << occupant_listener.totalFramesCount() * 1.0f / occupant_listener.getTotalTimeToProcessFrames()
+             << " (detector ran every " << occupant_listener.getCallbackInterval()<< "ms)\n"
              << "******************************************************************\n";
 
         detector.reset();
@@ -216,8 +218,9 @@ void processBodyVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_fi
              << "Percent of samples w/bodies present: " << body_listener.getSamplesWithBodiesPercent()
              << "%\n"
              << "Body callback interval: " << body_listener.getCallbackInterval() << "ms\n"
-             << "Frames processed per second: "
-             << body_listener.getProcessedFrames() * 1.0f / body_listener.getTotalTimeToProcessFrames() << endl
+             << "Average processed fps: "
+             << body_listener.totalFramesCount() * 1.0f / body_listener.getTotalTimeToProcessFrames()
+             << " (detector ran every " << body_listener.getCallbackInterval()<< "ms)\n"
              << "******************************************************************\n";
 
         detector.reset();
@@ -273,8 +276,8 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
              << "Processed Frame count: " << image_listener.getProcessedFrames() << endl
              << "Frames w/faces: " << image_listener.getFramesWithFaces() << endl
              << "Percent of frames w/faces: " << image_listener.getFramesWithFacesPercent() << "%\n"
-             << "Frames processed per second: " <<
-             image_listener.getProcessedFrames() * 1.0f / image_listener.getTotalTimeToProcessFrames() << endl
+             << "Average processed fps: " <<
+             image_listener.totalFramesCount() * 1.0f / image_listener.getTotalTimeToProcessFrames() << endl
              << "******************************************************************\n";
 
         detector.reset();

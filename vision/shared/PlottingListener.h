@@ -24,7 +24,8 @@ public:
         processed_frames_(0),
         logging_enabled_(enable_logging),
         process_fps_(0),
-        total_time_to_process_frames_(0) {
+        total_time_to_process_frames_(0),
+        total_frames_count_(0) {
     }
 
     int getProcessedFrames() {
@@ -66,6 +67,7 @@ public:
     void startTimer() {
         std::lock_guard<std::mutex> lg(mtx);
         begin_ = std::chrono::steady_clock::now();
+        ++total_frames_count_;
     }
 
     void stopTimer() {
@@ -83,6 +85,10 @@ public:
     long getTotalTimeToProcessFrames() {
         //convert from milliseconds to seconds
         return total_time_to_process_frames_ * 1e-3;
+    }
+
+    unsigned int totalFramesCount() {
+        return total_frames_count_;
     }
 
 protected:
@@ -105,4 +111,5 @@ protected:
     std::chrono::steady_clock::time_point begin_;
     std::chrono::steady_clock::time_point end_;
     long total_time_to_process_frames_;
+    unsigned int total_frames_count_;
 };

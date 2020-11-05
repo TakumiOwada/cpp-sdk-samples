@@ -172,6 +172,7 @@ public:
         frames_with_objects_ = 0;
         process_fps_ = 0.0f;
         results_.clear();
+        total_frames_count_ = 0;
     }
 
 private:
