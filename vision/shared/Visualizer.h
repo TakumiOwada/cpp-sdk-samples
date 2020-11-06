@@ -28,7 +28,7 @@ public:
     void drawPoints(const std::map<affdex::vision::FacePoint, affdex::vision::Point>& points);
 
     //DrawBoundingBox displays the bounding box with the valence value
-    void drawBoundingBox(const std::vector<affdex::vision::Point>& bounding_box, float valence);
+    void drawBoundingBox(const std::vector<affdex::vision::Point>& bounding_box, float valence = 100);
 
     //DrawBoundingBox displays the bounding box with the color
     void drawBoundingBox(const std::vector<affdex::vision::Point>& bounding_box, const cv::Scalar& color);

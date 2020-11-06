@@ -59,7 +59,7 @@ public:
             results_.pop_front();
             const vision::Frame old_frame = latest_data_.first;
             const auto items = latest_data_.second;
-            outputToFile(items, old_frame.getTimestamp());
+            //outputToFile(items, old_frame.getTimestamp());
         }
         drawRecentFrame();
     }

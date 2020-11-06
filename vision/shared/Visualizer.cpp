@@ -20,21 +20,6 @@ Visualizer::Visualizer() :
     logo = cv::imdecode(cv::InputArray(small_logo), CV_LOAD_IMAGE_UNCHANGED);
 
     EXPRESSIONS = {
-        {Expression::SMILE, "smile"},
-        {Expression::BROW_RAISE, "browRaise"},
-        {Expression::BROW_FURROW, "browFurrow"},
-        {Expression::NOSE_WRINKLE, "noseWrinkle"},
-        {Expression::UPPER_LIP_RAISE, "upperLipRaise"},
-        {Expression::MOUTH_OPEN, "mouthOpen"},
-        {Expression::EYE_CLOSURE, "eyeClosure"},
-        {Expression::CHEEK_RAISE, "cheekRaise"},
-        {Expression::YAWN, "yawn"},
-        {Expression::BLINK, "blink"},
-        {Expression::BLINK_RATE, "blinkRate"},
-        {Expression::EYE_WIDEN, "eyeWiden"},
-        {Expression::INNER_BROW_RAISE, "innerBrowRaise"},
-        {Expression::LIP_CORNER_DEPRESSOR, "lipCornerDepressor"},
-        {Expression::LID_TIGHTEN, "lidTighten"}
     };
 
     EMOTIONS = {
@@ -45,35 +30,15 @@ Visualizer::Visualizer() :
     };
 
     HEAD_ANGLES = {
-        {Measurement::PITCH, "pitch"},
-        {Measurement::YAW, "yaw"},
-        {Measurement::ROLL, "roll"}
     };
 
     DOMINANT_EMOTIONS = {
-        {DominantEmotion::UNKNOWN, "unknown"},
-        {DominantEmotion::NEUTRAL, "neutral"},
-        {DominantEmotion::JOY, "joy"},
-        {DominantEmotion::ANGER, "anger"},
-        {DominantEmotion::SURPRISE, "surprise"},
-        {DominantEmotion::SADNESS, "sadness"},
-        {DominantEmotion::DISGUST, "disgust"},
-        {DominantEmotion::FEAR, "fear"},
     };
 
     MOODS = {
-        {Mood::UNKNOWN, "UNKNOWN"},
-        {Mood::NEUTRAL, "NEUTRAL"},
-        {Mood::NEGATIVE, "NEGATIVE"},
-        {Mood::POSITIVE, "POSITIVE"},
     };
 
     AGE_CATEGORIES = {
-        {AgeCategory::UNKNOWN, "UNKNOWN"},
-        {AgeCategory::BABY, "BABY"},
-        {AgeCategory::CHILD, "CHILD"},
-        {AgeCategory::TEEN, "TEEN"},
-        {AgeCategory::ADULT, "ADULT"}
     };
 
     COLOR_EDGES_PAIR = {
@@ -93,21 +58,10 @@ Visualizer::Visualizer() :
     };
 
     GAZE_REGIONS = {
-        {GazeRegion::UNKNOWN, "UNKNOWN"},
-        {GazeRegion::LEFT, "LEFT"},
-        {GazeRegion::RIGHT, "RIGHT"},
-        {GazeRegion::UP_RIGHT, "UP_RIGHT"},
-        {GazeRegion::FORWARD, "FORWARD"},
-        {GazeRegion::FORWARD_DOWN, "FORWARD_DOWN"},
-        {GazeRegion::DOWN, "DOWN"}
     };
 
     DROWSINESS_LEVELS = {
-        {Drowsiness::UNKNOWN, "UNKNOWN"},
-        {Drowsiness::AWAKE, "AWAKE"},
-        {Drowsiness::MODERATE, "MODERATE"},
-        {Drowsiness::SEVERE, "SEVERE"},
-        {Drowsiness::ASLEEP, "ASLEEP"}
+
     };
 
 }
@@ -139,7 +93,7 @@ void Visualizer::drawFaceMetrics(affdex::vision::Face face, std::vector<Point> b
     }
 
     //Draw Head Angles
-    drawHeadOrientation(face.getMeasurements(), bounding_box[1].x, padding, false);
+    //drawHeadOrientation(face.getMeasurements(), bounding_box[1].x, padding, false);
 
     padding = bounding_box[0].y;  //Top right Y
     if (draw_face_id) {
@@ -160,44 +114,44 @@ void Visualizer::drawFaceMetrics(affdex::vision::Face face, std::vector<Point> b
     }
 
     //Draw identity
-    const auto identity = face.getIdentityMetric();
-    std::string id_content;
-    identity.id == -1 ? id_content = "UNKNOWN" : id_content = std::to_string(identity.id);
-    drawText("identity", id_content, cv::Point(bounding_box[0].x, padding += spacing), true);
-    drawClassifierOutput("identity_confidence",
-                         identity.confidence,
-                         cv::Point(bounding_box[0].x, padding += spacing),
-                         true);
+//    const auto identity = face.getIdentityMetric();
+//    std::string id_content;
+//    identity.id == -1 ? id_content = "UNKNOWN" : id_content = std::to_string(identity.id);
+//    drawText("identity", id_content, cv::Point(bounding_box[0].x, padding += spacing), true);
+//    drawClassifierOutput("identity_confidence",
+//                         identity.confidence,
+//                         cv::Point(bounding_box[0].x, padding += spacing),
+//                         true);
+//
+//    //Draw age
+//    const auto age = face.getAgeMetric();
+//    std::string age_content;
+//    age.years == -1 ? age_content = "UNKNOWN" : age_content = std::to_string(age.years);
+//    drawText("age", age_content, cv::Point(bounding_box[0].x, padding += spacing), true);
+//    drawClassifierOutput("age_confidence", age.confidence, cv::Point(bounding_box[0].x, padding += spacing), true);
+//
+//    //Draw age category
+//    const auto age_category = face.getAgeCategory();
+//    drawText("age_category", AGE_CATEGORIES[age_category], cv::Point(bounding_box[0].x, padding += spacing),
+//             true);
+//
+//    //Draw gaze
+//    const auto gaze = face.getGazeMetric();
 
-    //Draw age
-    const auto age = face.getAgeMetric();
-    std::string age_content;
-    age.years == -1 ? age_content = "UNKNOWN" : age_content = std::to_string(age.years);
-    drawText("age", age_content, cv::Point(bounding_box[0].x, padding += spacing), true);
-    drawClassifierOutput("age_confidence", age.confidence, cv::Point(bounding_box[0].x, padding += spacing), true);
-
-    //Draw age category
-    const auto age_category = face.getAgeCategory();
-    drawText("age_category", AGE_CATEGORIES[age_category], cv::Point(bounding_box[0].x, padding += spacing),
-             true);
-
-    //Draw gaze
-    const auto gaze = face.getGazeMetric();
-
-    drawText("gaze_region", GAZE_REGIONS[gaze.gazeRegion], cv::Point(bounding_box[0].x, padding += spacing), true);
-    drawClassifierOutput("gaze_confidence", gaze.confidence, cv::Point(bounding_box[0].x, padding += spacing), true);
-
-    //Draw glasses confidence
-    drawClassifierOutput("glasses", face.getGlasses(), cv::Point(bounding_box[0].x, padding += spacing), true);
-
-    if(show_drowsiness) {
-        // draw drowsiness metric
-        const auto drowsiness_metric = face.getDrowsinessMetric();
-        drawText("drowsiness_level", DROWSINESS_LEVELS[drowsiness_metric.drowsiness], cv::Point(bounding_box[0].x,
-                                                                                                padding += spacing), true);
-        drawText("drowsiness_confidence", std::to_string(drowsiness_metric.confidence), cv::Point(bounding_box[0].x,
-                                                                                                  padding += spacing), true);
-    }
+//    drawText("gaze_region", GAZE_REGIONS[gaze.gazeRegion], cv::Point(bounding_box[0].x, padding += spacing), true);
+//    drawClassifierOutput("gaze_confidence", gaze.confidence, cv::Point(bounding_box[0].x, padding += spacing), true);
+//
+//    //Draw glasses confidence
+//    drawClassifierOutput("glasses", face.getGlasses(), cv::Point(bounding_box[0].x, padding += spacing), true);
+//
+//    if(show_drowsiness) {
+//        // draw drowsiness metric
+//        const auto drowsiness_metric = face.getDrowsinessMetric();
+//        drawText("drowsiness_level", DROWSINESS_LEVELS[drowsiness_metric.drowsiness], cv::Point(bounding_box[0].x,
+//                                                                                                padding += spacing), true);
+//        drawText("drowsiness_confidence", std::to_string(drowsiness_metric.confidence), cv::Point(bounding_box[0].x,
+//                                                                                                  padding += spacing), true);
+//    }
 }
 
 void Visualizer::updateImage(const cv::Mat& output_img) {

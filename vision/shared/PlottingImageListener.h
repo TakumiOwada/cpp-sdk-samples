@@ -166,8 +166,8 @@ public:
 
             // Draw bounding box
             auto bbox = f.getBoundingBox();
-            const float valence = f.getEmotions().at(vision::Emotion::VALENCE);
-            viz_.drawBoundingBox(bbox, valence);
+//            const float valence = f.getEmotions().at(vision::Emotion::VALENCE);
+            viz_.drawBoundingBox(bbox);
 
             // Draw Facial Landmarks Points
             viz_.drawPoints(f.getFacePoints());
