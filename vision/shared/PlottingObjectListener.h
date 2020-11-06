@@ -46,7 +46,7 @@ public:
         if (!objects.empty()) {
             frames_with_objects_++;
         }
-    };
+    }
 
     static std::string typeToString(const Object::Type& type) {
         switch (type) {
@@ -126,7 +126,9 @@ public:
             }
         }
 
-        viz_.showImage();
+        if (draw_display_) {
+            viz_.showImage();
+        }
         image_data_ = viz_.getImageData();
     }
 

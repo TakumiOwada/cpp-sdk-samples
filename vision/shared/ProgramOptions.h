@@ -10,13 +10,14 @@ struct ProgramOptionsVideo {
         FACE,
         OBJECT,
         OCCUPANT,
-        BODY
+        BODY,
+        ALL
     };
     // cmd line args
     affdex::Path data_dir;
     affdex::Path input_video_path;
     affdex::Path output_video_path;
-    unsigned int sampling_frame_rate;
+    float sampling_frame_rate;
     bool draw_display;
     unsigned int num_faces;
     bool loop = false;

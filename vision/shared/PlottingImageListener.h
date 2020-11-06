@@ -181,8 +181,9 @@ public:
             // Draw a face on screen
             viz_.drawFaceMetrics(f, bbox, draw_face_id_, show_drowsiness_);
         }
-
-        viz_.showImage();
+        if (draw_display_) {
+            viz_.showImage();
+        }
         image_data_ = viz_.getImageData();
     }
 

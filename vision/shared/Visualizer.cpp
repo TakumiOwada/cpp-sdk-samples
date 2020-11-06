@@ -277,13 +277,13 @@ void Visualizer::drawText(const std::string& name, const std::string& value,
     cv::putText(img, label + value, display_loc, cv::FONT_HERSHEY_SIMPLEX, 0.5f, std::move(color), 1);
 }
 
-void Visualizer::drawBodyMetrics(std::map<BodyPoint, Point>& body_points) {
+void Visualizer::drawBodyMetrics(const std::map<BodyPoint, Point>& body_points) {
     //draw lines between two decided body points
     for (const auto& color_edges : COLOR_EDGES_PAIR) {
         if (body_points.find(color_edges.start_) != body_points.end() &&
             body_points.find(color_edges.end_) != body_points.end()) {
-            const Point pt1 = body_points[color_edges.start_];
-            const Point pt2 = body_points[color_edges.end_];
+            const Point pt1 = body_points.at(color_edges.start_);
+            const Point pt2 = body_points.at(color_edges.end_);
 
             cv::line(img, cv::Point(pt1.x, pt1.y), cv::Point(pt2.x, pt2.y), color_edges.color_, 3);
         }

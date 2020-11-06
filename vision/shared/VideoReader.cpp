@@ -5,7 +5,7 @@
 
 using namespace std;
 
-VideoReader::VideoReader(const boost::filesystem::path& file_path, const int sampling_frame_rate)
+VideoReader::VideoReader(const boost::filesystem::path& file_path, float sampling_frame_rate)
     : sampling_frame_rate_(sampling_frame_rate) {
 
     last_timestamp_ms_ =

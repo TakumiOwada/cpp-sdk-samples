@@ -2,6 +2,7 @@
 #include "PlottingObjectListener.h"
 #include "PlottingOccupantListener.h"
 #include "PlottingBodyListener.h"
+#include "PlottingAllListener.h"
 #include "StatusListener.h"
 #include "VideoReader.h"
 #include "FileUtils.h"
@@ -42,7 +43,7 @@ void assembleProgramOptions(po::options_description& description, ProgramOptions
         ("output,o", po::value<affdex::Path>(&program_options.output_video_path), "Output video path.")
 #endif // _WIN32
         ("sfps",
-         po::value<unsigned int>(&program_options.sampling_frame_rate)->default_value(0),
+         po::value<float>(&program_options.sampling_frame_rate)->default_value(-1.0f),
          "Input sampling frame rate. Default is 0, which means the app will respect the video's FPS and read all frames")
         ("draw", po::value<bool>(&program_options.draw_display)->default_value(true), "Draw video on screen.")
         ("numFaces", po::value<unsigned int>(&program_options.num_faces)->default_value(5), "Number of faces to be "
@@ -57,6 +58,7 @@ void assembleProgramOptions(po::options_description& description, ProgramOptions
         ("object", "Enable object detection")
         ("occupant", "Enable occupant detection, also enables body and face detection")
         ("body", "Enable body detection")
+        ("all", "Enable every detection type")
         ("drowsiness", "Enable drowsiness detection, will be used only if no other detection types are enabled");
 
 }
@@ -85,7 +87,7 @@ void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_
 
     do {
         // the VideoReader will handle decoding frames from the input video file
-        VideoReader video_reader(program_options.input_video_path, program_options.sampling_frame_rate);
+        VideoReader video_reader(program_options.input_video_path);
 
         cv::Mat mat;
         Timestamp timestamp_ms;
@@ -136,7 +138,7 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
 
     do {
         // the VideoReader will handle decoding frames from the input video file
-        VideoReader video_reader(program_options.input_video_path, program_options.sampling_frame_rate);
+        VideoReader video_reader(program_options.input_video_path);
 
         cv::Mat mat;
         Timestamp timestamp_ms;
@@ -184,7 +186,7 @@ void processBodyVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_fi
 
     do {
         // the VideoReader will handle decoding frames from the input video file
-        VideoReader video_reader(program_options.input_video_path, program_options.sampling_frame_rate);
+        VideoReader video_reader(program_options.input_video_path);
 
         cv::Mat mat;
         Timestamp timestamp_ms;
@@ -236,7 +238,7 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
 
     do {
         // the VideoReader will handle decoding frames from the input video file
-        VideoReader video_reader(program_options.input_video_path, program_options.sampling_frame_rate);
+        VideoReader video_reader(program_options.input_video_path);
 
         cv::Mat mat;
         Timestamp timestamp_ms;
@@ -263,9 +265,82 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
     } while (program_options.loop);
 }
 
+
+void processAllVideo(vision::SyncFrameDetector& detector,
+                      std::ofstream& csv_file_stream,
+                      ProgramOptionsVideo& program_options) {
+    // configure the Detector by enabling features
+    detector.enable({vision::Feature::EMOTIONS, vision::Feature::EXPRESSIONS, vision::Feature::IDENTITY,
+                     vision::Feature::APPEARANCES, vision::Feature::GAZE, vision::Feature::FACES,
+                     vision::Feature::BODIES, vision::Feature::OCCUPANTS, vision::Feature::CHILD_SEATS, vision::Feature::PHONES});
+
+
+
+    if(program_options.show_drowsiness) {
+        detector.enable( vision::Feature::DROWSINESS);
+    }
+
+    const std::map<Feature, Duration> callback_intervals_object = {{Feature::CHILD_SEATS, 1000}, {Feature::PHONES,
+                                                                                                 1000}};
+    // prepare listeners
+    PlottingAllListener all_listener(csv_file_stream, program_options.draw_display, !program_options
+        .disable_logging, 500, detector.getCabinRegionConfig().getRegions(), callback_intervals_object);
+
+    StatusListener status_listener;
+
+    // configure the Detector by assigning listeners
+    detector.setImageListener(&all_listener);
+    detector.setObjectListener(&all_listener);
+    detector.setOccupantListener(&all_listener);
+
+    detector.setProcessStatusListener(&status_listener);
+
+    // start the detector
+    detector.start();
+
+    do {
+        // the VideoReader will handle decoding frames from the input video file
+        VideoReader video_reader(program_options.input_video_path);
+
+        cv::Mat mat;
+        Timestamp timestamp_ms;
+        while (video_reader.GetFrame(mat, timestamp_ms)) {
+            // create a Frame from the video input and process it with the Detector
+            vision::Frame
+                f(mat.size().width, mat.size().height, mat.data, vision::Frame::ColorFormat::BGR, timestamp_ms);
+            detector.process(f);
+            all_listener.processResults(f);
+            //To save output video file
+            if (program_options.write_video) {
+                program_options.output_video << all_listener.getImageData();
+            }
+        }
+
+        cout << "******************************************************************\n"
+             << "Processed Frame count: " << all_listener.getProcessedFrames() << endl
+             << "Percent of samples w/occupants present: " << all_listener.getSamplesWithOccupantsPercent() << "%\n"
+             << "Occupants detected in regions:  " << all_listener.getOccupantRegionsDetected() << endl
+             << "Occupant callback interval: " << all_listener.getCallbackInterval() << "ms\n"
+             << "Object types detected: " << all_listener.getObjectTypesDetected() << endl
+             << "Objects detected in regions " << all_listener.getObjectRegionsDetected() << endl
+             << "******************************************************************\n";
+
+        detector.reset();
+        all_listener.reset();
+    } while (program_options.loop);
+}
+
 bool verifyTypeOfProcess(const po::variables_map& args,
                          std::string& detection_type_str,
                          ProgramOptionsVideo& program_options) {
+
+    // ignore all arguments if `--all` is specified
+    if(args.count("all")) {
+        std::cout << "Setting up every detection type enabled\n";
+        program_options.detection_type = program_options.ALL;
+        detection_type_str = "_all";
+        return true;
+    }
 
     //Check for object or occupant or body argument present or not. If nothing is present then enable face by default.
     const bool is_occupant = args.count("occupant");
@@ -381,12 +456,15 @@ int main(int argsc, char** argsv) {
         }
 
         //Get resolution and fps from input video
-        int sniffed_fps, frameHeight, frameWidth;
-        VideoReader::SniffResolution(program_options.input_video_path, frameHeight, frameWidth, sniffed_fps);
-        if (program_options.sampling_frame_rate == 0) {
+        cv::VideoCapture video(program_options.input_video_path);
+        auto sniffed_fps = static_cast<float>(video.get(CV_CAP_PROP_FPS));
+        int frameHeight = static_cast<int>(video.get(CV_CAP_PROP_FRAME_HEIGHT));
+        int frameWidth = static_cast<int>(video.get(CV_CAP_PROP_FRAME_WIDTH));
+        video.release();
+        if (program_options.sampling_frame_rate <= 0) {
             // If user did not specify --sfps (i.e. // default of 0), used the sniffed_fps
             program_options.sampling_frame_rate = sniffed_fps;
-            std::cout << "Using estimated video FPS for output video: " << sniffed_fps;
+            std::cout << "Using estimated video FPS for output video: " << sniffed_fps <<std::endl;
         }
 
         //Setup video writer
@@ -415,6 +493,9 @@ int main(int argsc, char** argsv) {
                 break;
             case program_options.FACE:
                 processFaceVideo(*detector, csv_file_stream, program_options);
+                break;
+            case program_options.ALL:
+                processAllVideo(*detector, csv_file_stream, program_options);
                 break;
             default:
                 std::cerr << "This should never happen " << program_options.detection_type << std::endl;

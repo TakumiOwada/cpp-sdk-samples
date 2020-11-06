@@ -46,7 +46,7 @@ public:
                          bool draw_face_id = false, bool draw_drowsiness = false);
 
     // Draw body related metrics
-    void drawBodyMetrics(std::map<affdex::vision::BodyPoint, affdex::vision::Point>& body_points);
+    void drawBodyMetrics(const std::map<affdex::vision::BodyPoint, affdex::vision::Point>& body_points);
 
     //Draw occupant related metrics
     void drawOccupantMetrics(const affdex::vision::Occupant& occupant);
