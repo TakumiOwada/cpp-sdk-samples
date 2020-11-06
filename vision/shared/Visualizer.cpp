@@ -41,12 +41,7 @@ Visualizer::Visualizer() :
         {Emotion::JOY, "joy"},
         {Emotion::ANGER, "anger"},
         {Emotion::SURPRISE, "surprise"},
-        {Emotion::VALENCE, "valence"},
-        {Emotion::FEAR, "fear"},
-        {Emotion::SADNESS, "sadness"},
-        {Emotion::DISGUST, "disgust"},
-        {Emotion::NEUTRAL, "neutral"},
-        {Emotion::CONTEMPT, "contempt"}
+        {Emotion::NEUTRAL, "neutral"}
     };
 
     HEAD_ANGLES = {

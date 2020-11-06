@@ -232,8 +232,7 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
                       std::ofstream& csv_file_stream,
                       ProgramOptionsVideo& program_options) {
     // configure the Detector by enabling features
-    detector.enable({vision::Feature::EMOTIONS, vision::Feature::EXPRESSIONS, vision::Feature::IDENTITY,
-                     vision::Feature::APPEARANCES, vision::Feature::GAZE});
+    detector.enable({vision::Feature::EMOTIONS});
 
     if(program_options.show_drowsiness) {
         detector.enable( vision::Feature::DROWSINESS);
