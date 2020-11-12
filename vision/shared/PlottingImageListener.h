@@ -10,16 +10,9 @@ using namespace affdex;
 class PlottingImageListener : public vision::ImageListener, public PlottingListener<vision::Face> {
 
 public:
-
-    PlottingImageListener(std::ofstream& csv, ProgramOptionsWebcam& program_options ) :
-        PlottingListener(csv, program_options.draw_display, !program_options.disable_logging), capture_last_ts_(0),
-        capture_fps_(0), draw_face_id_(program_options.draw_id), frames_with_faces_(0),
-        show_drowsiness_(program_options.show_drowsiness) {
-        setCSVHeaders();
-    }
-
-    PlottingImageListener(std::ofstream& csv, ProgramOptionsVideo& program_options ) :
-        PlottingListener(csv, program_options.draw_display, !program_options.disable_logging), capture_last_ts_(0),
+    template<typename T>
+    PlottingImageListener(std::ofstream& csv, T& program_options ) :
+        PlottingListener(csv, program_options.draw_display, !program_options.disable_logging, program_options.write_video), capture_last_ts_(0),
         capture_fps_(0), draw_face_id_(program_options.draw_id), frames_with_faces_(0),
         show_drowsiness_(program_options.show_drowsiness) {
         setCSVHeaders();
@@ -55,7 +48,6 @@ public:
 
     void onImageResults(std::map<vision::FaceId, vision::Face> faces, vision::Frame frame) override {
         std::lock_guard<std::mutex> lg(mtx);
-        stopTimer();
         results_.emplace_back(frame, faces);
         ++processed_frames_;
         if (!faces.empty()) {
@@ -196,9 +188,7 @@ public:
         capture_fps_ = 0;
         processed_frames_ = 0;
         frames_with_faces_ = 0;
-        process_fps_ = 0.0f;
         results_.clear();
-        total_frames_count_ = 0;
     }
 
 private:

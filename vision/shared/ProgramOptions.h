@@ -24,6 +24,9 @@ struct ProgramOptionsCommon {
     bool write_video = false;
     bool show_drowsiness = false;
 
+    std::chrono::steady_clock::time_point begin;
+    std::chrono::steady_clock::time_point end;
+
 };
 
 struct ProgramOptionsVideo : ProgramOptionsCommon {

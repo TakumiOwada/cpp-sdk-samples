@@ -45,10 +45,11 @@ class PlottingBodyListener : public vision::BodyListener, public PlottingListene
 
 public:
 
-    PlottingBodyListener(std::ofstream& csv, bool draw_display, bool enable_logging, bool draw_body_id, const
+    template<typename T>
+    PlottingBodyListener(std::ofstream& csv, T& program_options, const
     Duration callback_interval) :
-        PlottingListener(csv, draw_display, enable_logging), callback_interval_(callback_interval),
-        draw_body_id_(draw_body_id), frames_with_bodies_(0) {
+        PlottingListener(csv, program_options.draw_display, !program_options.disable_logging, program_options.write_video), callback_interval_(callback_interval),
+        draw_body_id_(program_options.draw_id), frames_with_bodies_(0) {
 
         out_stream_ << "TimeStamp, bodyId";
 
@@ -74,7 +75,6 @@ public:
     void onBodyResults(const std::map<vision::BodyId, vision::Body>& bodies,
                        vision::Frame frame) override {
         std::lock_guard<std::mutex> lg(mtx);
-        stopTimer();
         results_.emplace_back(frame, bodies);
         ++processed_frames_;
         if (!bodies.empty()) {
@@ -133,9 +133,7 @@ public:
         std::lock_guard<std::mutex> lg(mtx);
         processed_frames_ = 0;
         frames_with_bodies_ = 0;
-        process_fps_ = 0.0f;
         results_.clear();
-        total_frames_count_ = 0;
     }
 
 private:

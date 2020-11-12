@@ -17,15 +17,13 @@ using namespace affdex;
 template<typename T> class PlottingListener {
 
 public:
-    PlottingListener(std::ofstream& csv, bool draw_display, bool enable_logging) :
+    PlottingListener(std::ofstream& csv, bool draw_display, bool enable_logging, bool write_video) :
         out_stream_(csv),
         image_data_(),
         draw_display_(draw_display),
         processed_frames_(0),
         logging_enabled_(enable_logging),
-        process_fps_(0),
-        total_time_to_process_frames_(0),
-        total_frames_count_(0) {
+        write_video_(write_video){
     }
 
     int getProcessedFrames() {
@@ -61,34 +59,9 @@ public:
             const auto items = latest_data_.second;
             outputToFile(items, old_frame.getTimestamp());
         }
-        drawRecentFrame();
-    }
-
-    void startTimer() {
-        std::lock_guard<std::mutex> lg(mtx);
-        begin_ = std::chrono::steady_clock::now();
-        ++total_frames_count_;
-    }
-
-    void stopTimer() {
-        end_ = std::chrono::steady_clock::now();
-        const auto timer_diff = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - begin_).count();
-        total_time_to_process_frames_ += timer_diff;
-        process_fps_ = 1000.0 / timer_diff;
-    }
-
-    float getProcessingFrameRate() {
-        std::lock_guard<std::mutex> lg(mtx);
-        return process_fps_;
-    }
-
-    long getTotalTimeToProcessFrames() {
-        //convert from milliseconds to seconds
-        return total_time_to_process_frames_ * 1e-3;
-    }
-
-    unsigned int totalFramesCount() {
-        return total_frames_count_;
+        if(write_video_ || draw_display_) {
+            drawRecentFrame();
+        }
     }
 
 protected:
@@ -107,9 +80,6 @@ protected:
     vision::Frame most_recent_frame_;
     Timestamp time_callback_received_ = 0;
     Duration timeout_ = 500;
-    float process_fps_;
-    std::chrono::steady_clock::time_point begin_;
-    std::chrono::steady_clock::time_point end_;
-    long total_time_to_process_frames_;
-    unsigned int total_frames_count_;
+    bool write_video_;
+
 };

@@ -155,7 +155,6 @@ void processFaceStream(std::unique_ptr<vision::Detector>& frame_detector, std::o
     try {
         vision::Frame frame;
         do {
-            image_listener.startTimer();
             if (!processFrameFromWebcam(frame_detector, program_options, webcam, start_time, frame)) {
                 break;
             }
@@ -183,9 +182,7 @@ void processObjectStream(std::unique_ptr<vision::Detector>& frame_detector, std:
 
     // prepare listeners
     PlottingObjectListener object_listener(csv_file_stream,
-                                           program_options.draw_display,
-                                           !program_options.disable_logging,
-                                           program_options.draw_id,
+                                           program_options,
                                            {{vision::Feature::CHILD_SEATS, 1000}, {vision::Feature::PHONES, 1000}},
                                            frame_detector->getCabinRegionConfig().getRegions());
 
@@ -203,7 +200,6 @@ void processObjectStream(std::unique_ptr<vision::Detector>& frame_detector, std:
     try {
         vision::Frame frame;
         do {
-            object_listener.startTimer();
             if (!processFrameFromWebcam(frame_detector, program_options, webcam, start_time, frame)) {
                 break;
             }
@@ -232,8 +228,7 @@ void processOccupantStream(std::unique_ptr<vision::Detector>& frame_detector,
                            cv::VideoCapture& webcam) {
 
     // prepare listeners
-    PlottingOccupantListener occupant_listener(csv_file_stream, program_options.draw_display, !program_options
-        .disable_logging, program_options.draw_id, 200, frame_detector->getCabinRegionConfig().getRegions());
+    PlottingOccupantListener occupant_listener(csv_file_stream, program_options, 200, frame_detector->getCabinRegionConfig().getRegions());
 
 
     // configure the Detector by enabling features and assigning listeners
@@ -251,7 +246,6 @@ void processOccupantStream(std::unique_ptr<vision::Detector>& frame_detector,
     try {
         vision::Frame frame;
         do {
-            occupant_listener.startTimer();
             if (!processFrameFromWebcam(frame_detector, program_options, webcam, start_time, frame)) {
                 break;
             }
@@ -281,8 +275,7 @@ void processBodyStream(std::unique_ptr<vision::Detector>& frame_detector,
                            cv::VideoCapture& webcam) {
 
     // prepare listeners
-    PlottingBodyListener body_listener(csv_file_stream, program_options.draw_display, !program_options
-        .disable_logging, program_options.draw_id, 500);
+    PlottingBodyListener body_listener(csv_file_stream, program_options, 500);
 
 
     // configure the Detector by enabling features and assigning listeners
@@ -298,7 +291,6 @@ void processBodyStream(std::unique_ptr<vision::Detector>& frame_detector,
     try {
         vision::Frame frame;
         do {
-            body_listener.startTimer();
             if (!processFrameFromWebcam(frame_detector, program_options, webcam, start_time, frame)) {
                 break;
             }

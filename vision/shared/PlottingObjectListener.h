@@ -11,10 +11,13 @@ class PlottingObjectListener : public ObjectListener, public PlottingListener<Ob
 
 public:
 
-    PlottingObjectListener(std::ofstream& csv, bool draw_display, bool enable_logging, bool draw_object_id,
+    template<typename T>
+    PlottingObjectListener(std::ofstream& csv, T& program_options,
         std::map<Feature, Duration> callback_intervals, std::vector<CabinRegion> cabin_regions) :
-        PlottingListener(csv, draw_display, enable_logging), callback_intervals_(std::move(callback_intervals)),
-        cabin_regions_(std::move(cabin_regions)), draw_object_id_(draw_object_id), frames_with_objects_(0) {
+        PlottingListener(csv, program_options.draw_display, !program_options.disable_logging, program_options.write_video),
+        callback_intervals_
+        (std::move(callback_intervals)),
+        cabin_regions_(std::move(cabin_regions)), draw_object_id_(program_options.draw_id), frames_with_objects_(0) {
         out_stream_ << "TimeStamp, objectId, confidence, upperLeftX, upperLeftY, lowerRightX, lowerRightY, ObjectType";
 
         for (const auto& cr :cabin_regions_) {
@@ -39,7 +42,6 @@ public:
 
     void onObjectResults(const std::map<ObjectId, Object>& objects, vision::Frame frame) override {
         std::lock_guard<std::mutex> lg(mtx);
-        stopTimer();
         results_.emplace_back(frame, objects);
         ++processed_frames_;
         if (!objects.empty()) {
@@ -170,9 +172,7 @@ public:
         std::lock_guard<std::mutex> lg(mtx);
         processed_frames_ = 0;
         frames_with_objects_ = 0;
-        process_fps_ = 0.0f;
         results_.clear();
-        total_frames_count_ = 0;
     }
 
 private:

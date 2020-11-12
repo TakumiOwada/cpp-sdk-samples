@@ -9,10 +9,11 @@ class PlottingOccupantListener : public vision::OccupantListener, public Plottin
 
 public:
 
-    PlottingOccupantListener(std::ofstream& csv, bool draw_display, bool enable_logging, bool draw_occupant_id, const
+    template<typename T>
+    PlottingOccupantListener(std::ofstream& csv, T& program_options, const
     Duration callback_interval, std::vector<CabinRegion> cabin_regions) :
-        PlottingListener(csv, draw_display, enable_logging), callback_interval_(callback_interval),
-        cabin_regions_(std::move(cabin_regions)), draw_occupant_id_(draw_occupant_id), frames_with_occupants_(0) {
+        PlottingListener(csv, program_options.draw_display, !program_options.disable_logging, program_options.write_video), callback_interval_(callback_interval),
+        cabin_regions_(std::move(cabin_regions)), draw_occupant_id_(program_options.draw_id), frames_with_occupants_(0) {
         out_stream_ << "TimeStamp, occupantId, bodyId, confidence, regionId,  upperLeftX, upperLeftY, lowerRightX, "
                        "lowerRightY";
 
@@ -32,7 +33,6 @@ public:
     void onOccupantResults(const std::map<vision::OccupantId, vision::Occupant>& occupants,
                            vision::Frame frame) override {
         std::lock_guard<std::mutex> lg(mtx);
-        stopTimer();
         results_.emplace_back(frame, occupants);
         ++processed_frames_;
         if (!occupants.empty()) {
@@ -112,9 +112,7 @@ public:
         std::lock_guard<std::mutex> lg(mtx);
         processed_frames_ = 0;
         frames_with_occupants_ = 0;
-        process_fps_ = 0.0f;
         results_.clear();
-        total_frames_count_ = 0;
     }
 
 private:
