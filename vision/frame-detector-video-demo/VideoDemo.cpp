@@ -105,7 +105,7 @@ void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_
              << "Object types detected: " << object_listener.getObjectTypesDetected() << endl
              << "Objects detected in regions: " << object_listener.getObjectRegionsDetected() << endl
              << "Object callback interval: " << object_listener.getCallBackInterval() << endl
-             << "Average processed fps: " << timer.count_ * 1000.0f / timer.total_elapsed_time_ << "\n"
+             << "Average processed fps: " << timer.count * 1000.0f / timer.total_elapsed_time << "\n"
              << "******************************************************************\n";
 
         detector.reset();
@@ -158,7 +158,7 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
         cout << "******************************************************************\n"
              << "Occupants detected in regions:  " << occupant_listener.getOccupantRegionsDetected() << endl
              << "Occupant callback interval: " << occupant_listener.getCallbackInterval() << "ms\n"
-             << "Average processed fps: " << timer.count_ * 1000.0f / timer.total_elapsed_time_ << "\n"
+             << "Average processed fps: " << timer.count * 1000.0f / timer.total_elapsed_time << "\n"
              << "******************************************************************\n";
 
         detector.reset();
@@ -208,7 +208,7 @@ void processBodyVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_fi
 
         cout << "******************************************************************\n"
              << "Body callback interval: " << body_listener.getCallbackInterval() << "ms\n"
-             << "Average processed fps: " << timer.count_ * 1000.0f / timer.total_elapsed_time_ << "\n"
+             << "Average processed fps: " << timer.count * 1000.0f / timer.total_elapsed_time << "\n"
              << "******************************************************************\n";
 
         detector.reset();
@@ -266,7 +266,7 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
              << "Processed Frame count: " << image_listener.getProcessedFrames() << endl
              << "Frames w/faces: " << image_listener.getFramesWithFaces() << endl
              << "Percent of frames w/faces: " << image_listener.getFramesWithFacesPercent() << "%\n"
-             << "Average processed fps: " << timer.count_ * 1000.0f / timer.total_elapsed_time_ << "\n"
+             << "Average processed fps: " << timer.count * 1000.0f / timer.total_elapsed_time << "\n"
              << "******************************************************************\n";
 
         detector.reset();

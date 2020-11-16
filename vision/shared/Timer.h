@@ -2,18 +2,18 @@
 #include <chrono>
 
 struct Timer{
-    int count_ = 0;
-    long total_elapsed_time_ = 0;
-    std::chrono::steady_clock::time_point begin_;
-    std::chrono::steady_clock::time_point end_;
+    int count = 0;
+    long total_elapsed_time = 0;
+    std::chrono::steady_clock::time_point begin;
+    std::chrono::steady_clock::time_point end;
 
     void startTimer() {
-        begin_ = std::chrono::steady_clock::now();
-        ++count_;
+        begin = std::chrono::steady_clock::now();
+        ++count;
     }
 
     void stopTimer() {
-        end_ = std::chrono::steady_clock::now();
-        total_elapsed_time_ += std::chrono::duration_cast<std::chrono::milliseconds>(end_ - begin_).count();
+        end = std::chrono::steady_clock::now();
+        total_elapsed_time += std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
     }
 };
