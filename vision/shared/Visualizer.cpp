@@ -114,10 +114,12 @@ Visualizer::Visualizer() :
         {Drowsiness::SEVERE, "SEVERE"},
         {Drowsiness::ASLEEP, "ASLEEP"}
     };
-
 }
 
-void Visualizer::drawFaceMetrics(affdex::vision::Face face, std::vector<Point> bounding_box, bool draw_face_id, bool show_drowsiness) {
+void Visualizer::drawFaceMetrics(affdex::vision::Face face,
+                                 std::vector<Point> bounding_box,
+                                 bool draw_face_id,
+                                 bool show_drowsiness) {
     //Draw Right side metrics
     int padding = bounding_box[0].y; //Top left Y
 
@@ -195,13 +197,19 @@ void Visualizer::drawFaceMetrics(affdex::vision::Face face, std::vector<Point> b
     //Draw glasses confidence
     drawClassifierOutput("glasses", face.getGlasses(), cv::Point(bounding_box[0].x, padding += spacing), true);
 
-    if(show_drowsiness) {
+    if (show_drowsiness) {
         // draw drowsiness metric
         const auto drowsiness_metric = face.getDrowsinessMetric();
-        drawText("drowsiness_level", DROWSINESS_LEVELS[drowsiness_metric.drowsiness], cv::Point(bounding_box[0].x,
-                                                                                                padding += spacing), true);
-        drawText("drowsiness_confidence", std::to_string(drowsiness_metric.confidence), cv::Point(bounding_box[0].x,
-                                                                                                  padding += spacing), true);
+        drawText("drowsiness_level",
+                 DROWSINESS_LEVELS[drowsiness_metric.drowsiness],
+                 cv::Point(bounding_box[0].x,
+                           padding += spacing),
+                 true);
+        drawText("drowsiness_confidence",
+                 std::to_string(drowsiness_metric.confidence),
+                 cv::Point(bounding_box[0].x,
+                           padding += spacing),
+                 true);
     }
 }
 
@@ -209,7 +217,8 @@ void Visualizer::updateImage(const cv::Mat& output_img) {
     img = output_img;
 
     if (!logo_resized) {
-        const double logo_width = (logo.size().width > img.size().width * 0.25 ? img.size().width * 0.25 : logo.size().width);
+        const double
+            logo_width = (logo.size().width > img.size().width * 0.25 ? img.size().width * 0.25 : logo.size().width);
         const double logo_height = ((double)logo_width) * ((double)logo.size().height / logo.size().width);
         cv::resize(logo, logo, cv::Size(logo_width, logo_height));
         logo_resized = true;
@@ -304,19 +313,34 @@ void Visualizer::drawOccupantMetrics(const affdex::vision::Occupant& occupant) {
     int padding = occupant.getBoundingBox().getTopLeft().y; //Top left Y
 
     const std::string id(std::to_string(occupant.getMatchedSeat().cabinRegion.id));
-    const std::string region_type(affdex::vision::CabinRegion::typeToString(occupant.getMatchedSeat().cabinRegion.type));
+    const std::string
+        region_type(affdex::vision::CabinRegion::typeToString(occupant.getMatchedSeat().cabinRegion.type));
     const std::string match_confidence(std::to_string(occupant.getMatchedSeat().matchConfidence));
 
-    drawText("Region Confidence", match_confidence, cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing),
+    drawText("Region Confidence",
+             match_confidence,
+             cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing),
              false);
-    drawText("Region " + id, region_type, cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing), false);
-    drawText("ID", std::to_string(occupant.getId()), cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing), false);
+    drawText("Region " + id,
+             region_type,
+             cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing),
+             false);
+    drawText("ID",
+             std::to_string(occupant.getId()),
+             cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing),
+             false);
     if (occupant.getFace()) {
-        drawText("FaceID", std::to_string(occupant.getFace()->getId()), cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing), false);
+        drawText("FaceID",
+                 std::to_string(occupant.getFace()->getId()),
+                 cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing),
+                 false);
 //        drawBoundingBox(occupant.face->getBoundingBox(), {0, 0, 255});
     }
     if (occupant.getBody()) {
-        drawText("BodyID", std::to_string(occupant.getBody()->getId()), cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing), false);
+        drawText("BodyID",
+                 std::to_string(occupant.getBody()->getId()),
+                 cv::Point(occupant.getBoundingBox().getTopLeft().x, padding -= spacing),
+                 false);
         drawBodyMetrics(occupant.getBody()->getBodyPoints());
     }
 }
@@ -348,9 +372,11 @@ void Visualizer::drawObjectMetrics(const affdex::vision::Object& object) {
 
     int padding = object.getBoundingBox().getTopLeft().y; //Top left Y
 
-    drawText("Type", PlottingObjectListener::typeToString(object.getType()), cv::Point(object.getBoundingBox().getTopLeft().x,
-                                                                                  padding -=
-                                                                                      spacing),
+    drawText("Type",
+             PlottingObjectListener::typeToString(object.getType()),
+             cv::Point(object.getBoundingBox().getTopLeft().x,
+                       padding -=
+                           spacing),
              false);
 
     const std::string id(std::to_string(matched_region.cabinRegion.id));

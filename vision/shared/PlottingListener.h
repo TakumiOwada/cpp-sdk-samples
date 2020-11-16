@@ -2,6 +2,7 @@
 
 #include "Visualizer.h"
 #include "Frame.h"
+#include "ProgramOptions.h"
 
 #include <deque>
 #include <mutex>
@@ -15,13 +16,14 @@ using namespace affdex;
 template<typename T> class PlottingListener {
 
 public:
-    PlottingListener(std::ofstream& csv, bool draw_display, bool enable_logging, bool write_video) :
+
+    PlottingListener(std::ofstream& csv, const ProgramOptionsCommon& program_options) :
         out_stream_(csv),
         image_data_(),
-        draw_display_(draw_display),
+        draw_display_(program_options.draw_display),
         processed_frames_(0),
-        logging_enabled_(enable_logging),
-        write_video_(write_video){
+        logging_enabled_(!program_options.disable_logging),
+        write_video_(program_options.write_video) {
     }
 
     int getProcessedFrames() {
@@ -57,7 +59,7 @@ public:
             const auto items = latest_data_.second;
             outputToFile(items, old_frame.getTimestamp());
         }
-        if(write_video_ || draw_display_) {
+        if (write_video_ || draw_display_) {
             drawRecentFrame();
         }
     }
@@ -79,5 +81,4 @@ protected:
     Timestamp time_callback_received_ = 0;
     Duration timeout_ = 500;
     bool write_video_;
-
 };

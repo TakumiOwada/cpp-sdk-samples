@@ -4,7 +4,6 @@
 #include "vector"
 #include <opencv2/highgui/highgui.hpp>
 
-
 struct ProgramOptionsCommon {
     enum DetectionType {
         FACE,
@@ -23,6 +22,8 @@ struct ProgramOptionsCommon {
     bool disable_logging = false;
     bool write_video = false;
     bool show_drowsiness = false;
+    bool draw_display = true;
+    bool draw_id;
 };
 
 struct ProgramOptionsVideo : ProgramOptionsCommon {
@@ -30,19 +31,15 @@ struct ProgramOptionsVideo : ProgramOptionsCommon {
     // cmd line args
     affdex::Path input_video_path;
     int sampling_frame_rate;
-    bool draw_display;
     bool loop = false;
-    bool draw_id = false;
 };
 
-struct ProgramOptionsWebcam : ProgramOptionsCommon{
+struct ProgramOptionsWebcam : ProgramOptionsCommon {
     // cmd line args
     affdex::Path output_file_path;
     std::vector<int> resolution;
     float process_framerate;
     int camera_framerate;
     int camera_id;
-    bool draw_display = true;
     bool sync = false;
-    bool draw_id = true;
 };

@@ -15,7 +15,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
-
 #include <iostream>
 #include <iomanip>
 
@@ -58,7 +57,6 @@ void assembleProgramOptions(po::options_description& description, ProgramOptions
         ("occupant", "Enable occupant detection, also enables body and face detection")
         ("body", "Enable body detection")
         ("drowsiness", "Enable drowsiness detection, will be used only if no other detection types are enabled");
-
 }
 
 void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_file_stream,
@@ -104,8 +102,6 @@ void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_
         }
 
         cout << "******************************************************************\n"
-             << "Percent of samples w/objects present: " << object_listener.getSamplesWithObjectsPercent() << "%"
-             << endl
              << "Object types detected: " << object_listener.getObjectTypesDetected() << endl
              << "Objects detected in regions: " << object_listener.getObjectRegionsDetected() << endl
              << "Object callback interval: " << object_listener.getCallBackInterval() << endl
@@ -126,7 +122,8 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
     detector.enable(vision::Feature::OCCUPANTS);
 
     // prepare listeners
-    PlottingOccupantListener occupant_listener(csv_file_stream, program_options, 500, detector.getCabinRegionConfig().getRegions());
+    PlottingOccupantListener
+        occupant_listener(csv_file_stream, program_options, 500, detector.getCabinRegionConfig().getRegions());
     StatusListener status_listener;
 
     // configure the Detector by assigning listeners
@@ -159,12 +156,10 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
         }
 
         cout << "******************************************************************\n"
-             << "Percent of samples w/occupants present: " << occupant_listener.getSamplesWithOccupantsPercent()
-             << "%\n"
              << "Occupants detected in regions:  " << occupant_listener.getOccupantRegionsDetected() << endl
              << "Occupant callback interval: " << occupant_listener.getCallbackInterval() << "ms\n"
              << "Average processed fps: " << timer.count_ * 1000.0f / timer.total_elapsed_time_ << "\n"
-            << "******************************************************************\n";
+             << "******************************************************************\n";
 
         detector.reset();
         occupant_listener.reset();
@@ -212,7 +207,6 @@ void processBodyVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_fi
         }
 
         cout << "******************************************************************\n"
-             << "Percent of samples w/bodies present: " << body_listener.getSamplesWithBodiesPercent() << "%\n"
              << "Body callback interval: " << body_listener.getCallbackInterval() << "ms\n"
              << "Average processed fps: " << timer.count_ * 1000.0f / timer.total_elapsed_time_ << "\n"
              << "******************************************************************\n";
@@ -229,8 +223,8 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
     detector.enable({vision::Feature::EMOTIONS, vision::Feature::EXPRESSIONS, vision::Feature::IDENTITY,
                      vision::Feature::APPEARANCES, vision::Feature::GAZE});
 
-    if(program_options.show_drowsiness) {
-        detector.enable( vision::Feature::DROWSINESS);
+    if (program_options.show_drowsiness) {
+        detector.enable(vision::Feature::DROWSINESS);
     }
 
     // prepare listeners
@@ -313,8 +307,9 @@ bool verifyTypeOfProcess(const po::variables_map& args,
         //check for drowsiness only when faces are enabled
         program_options.show_drowsiness = args.count("drowsiness");
         //append _drowsiness to csv file
-        if(program_options.show_drowsiness)
+        if (program_options.show_drowsiness) {
             detection_type_str += "_drowsiness";
+        }
         std::cout << "Setting up face detection\n";
     }
     return true;

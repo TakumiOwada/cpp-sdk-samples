@@ -9,7 +9,7 @@ VideoReader::VideoReader(const boost::filesystem::path& file_path, int sampling_
     : sampling_frame_rate_(sampling_frame_rate) {
 
     // Initialize so that with sampling, we always process the first frame.
-    last_timestamp_ms_ = sampling_frame_rate == 0 ? -1 :(0 - 1000 / sampling_frame_rate);
+    last_timestamp_ms_ = sampling_frame_rate == 0 ? -1 : (0 - 1000 / sampling_frame_rate);
 
     set<boost::filesystem::path> SUPPORTED_EXTS = {
         // Videos
@@ -44,7 +44,7 @@ bool VideoReader::GetFrame(cv::Mat& bgr_frame, affdex::Timestamp& timestamp_ms) 
             current_frame_++;
         }
     } while ((sampling_frame_rate_ > 0) && (timestamp_ms > 0) &&
-        ((timestamp_ms - last_timestamp_ms_) < 1000 / sampling_frame_rate_) && frame_data_loaded);
+        ((timestamp_ms - last_timestamp_ms_) < 1000.f / sampling_frame_rate_) && frame_data_loaded);
 
     last_timestamp_ms_ = timestamp_ms;
     frame_progress_->progressed(current_frame_);

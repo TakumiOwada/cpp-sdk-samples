@@ -10,9 +10,8 @@ using namespace affdex;
 class PlottingImageListener : public vision::ImageListener, public PlottingListener<vision::Face> {
 
 public:
-    template<typename T>
-    PlottingImageListener(std::ofstream& csv, T& program_options ) :
-        PlottingListener(csv, program_options.draw_display, !program_options.disable_logging, program_options.write_video), capture_last_ts_(0),
+    PlottingImageListener(std::ofstream& csv, const ProgramOptionsCommon& program_options) :
+        PlottingListener(csv, program_options), capture_last_ts_(0),
         capture_fps_(0), draw_face_id_(program_options.draw_id), frames_with_faces_(0),
         show_drowsiness_(program_options.show_drowsiness) {
         setCSVHeaders();
@@ -32,7 +31,7 @@ public:
         out_stream_ << "mood,dominantEmotion,dominantEmotionConfidence,gazeRegion, gazeConfidence,";
         out_stream_ << "identity,identityConfidence,age,ageConfidence,ageCategory,glasses";
 
-        if(show_drowsiness_) {
+        if (show_drowsiness_) {
             out_stream_ << ",drowsinessLevel,drowsinessConfidence";
         }
 
@@ -78,8 +77,8 @@ public:
                 out_stream_ << "nan,";
             }
             // mood,dominantEmotion,dominantEmotionConfidence,gazeRegion, gazeConfidence,identity,identityConfidence,age,ageConfidence,ageCategory,glasses
-            out_stream_<< "nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan";
-            if(show_drowsiness_) {
+            out_stream_ << "nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan";
+            if (show_drowsiness_) {
                 out_stream_ << ",nan,nan";
             }
             out_stream_ << std::endl;
@@ -137,7 +136,7 @@ public:
 
             out_stream_ << "," << f.getGlasses();
 
-            if(show_drowsiness_) {
+            if (show_drowsiness_) {
                 const auto drowsiness_metric = f.getDrowsinessMetric();
                 out_stream_ << "," << viz_.DROWSINESS_LEVELS[drowsiness_metric.drowsiness]
                             << "," << drowsiness_metric.confidence;
@@ -180,7 +179,6 @@ public:
     int getFramesWithFacesPercent() {
         return (static_cast<float>(frames_with_faces_) / processed_frames_) * 100;
     }
-
 
     void reset() override {
         std::lock_guard<std::mutex> lg(mtx);

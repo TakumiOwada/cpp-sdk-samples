@@ -45,11 +45,9 @@ class PlottingBodyListener : public vision::BodyListener, public PlottingListene
 
 public:
 
-    template<typename T>
-    PlottingBodyListener(std::ofstream& csv, T& program_options, const
+    PlottingBodyListener(std::ofstream& csv, const ProgramOptionsCommon& program_options, const
     Duration callback_interval) :
-        PlottingListener(csv, program_options.draw_display, !program_options.disable_logging, program_options.write_video), callback_interval_(callback_interval),
-        draw_body_id_(program_options.draw_id), frames_with_bodies_(0) {
+        PlottingListener(csv, program_options), callback_interval_(callback_interval) {
 
         out_stream_ << "TimeStamp, bodyId";
 
@@ -77,9 +75,6 @@ public:
         std::lock_guard<std::mutex> lg(mtx);
         results_.emplace_back(frame, bodies);
         ++processed_frames_;
-        if (!bodies.empty()) {
-            ++frames_with_bodies_;
-        }
     };
 
     void outputToFile(const std::map<vision::BodyId, vision::Body>& bodies, double time_stamp) override {
@@ -125,20 +120,12 @@ public:
         image_data_ = viz_.getImageData();
     }
 
-    int getSamplesWithBodiesPercent() const {
-        return (static_cast<float>(frames_with_bodies_) / processed_frames_) * 100;
-    }
-
     void reset() override {
         std::lock_guard<std::mutex> lg(mtx);
         processed_frames_ = 0;
-        frames_with_bodies_ = 0;
         results_.clear();
     }
 
 private:
     Duration callback_interval_;
-    std::vector<int> body_regions_;
-    bool draw_body_id_;
-    int frames_with_bodies_;
 };
