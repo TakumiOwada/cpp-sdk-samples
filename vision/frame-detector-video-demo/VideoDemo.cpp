@@ -5,6 +5,7 @@
 #include "StatusListener.h"
 #include "VideoReader.h"
 #include "FileUtils.h"
+#include "Timer.h"
 
 #include <Core.h>
 #include <FrameDetector.h>
@@ -62,21 +63,6 @@ void assembleProgramOptions(po::options_description& description, ProgramOptions
 
 }
 
-
-template<typename T>
-    static void startTimer(T& program_options, int& total_frames_count) {
-        program_options.begin = std::chrono::steady_clock::now();
-        ++total_frames_count;
-    }
-
-template<typename T>
-    static void stopTimer(T& program_options, long& total_time_to_process_frames) {
-        program_options.end = std::chrono::steady_clock::now();
-        const auto timer_diff = std::chrono::duration_cast<std::chrono::milliseconds>(program_options.end -
-            program_options.begin).count();
-        total_time_to_process_frames += timer_diff;
-    }
-
 void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_file_stream,
                         ProgramOptionsVideo& program_options) {
 
@@ -103,15 +89,14 @@ void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_
 
         cv::Mat mat;
         Timestamp timestamp_ms;
-        long total_time_to_process_frames = 0;
-        int total_frames_count = 0;
+        Timer timer;
         while (video_reader.GetFrame(mat, timestamp_ms)) {
             // create a Frame from the video input and process it with the Detector
             vision::Frame
                 f(mat.size().width, mat.size().height, mat.data, vision::Frame::ColorFormat::BGR, timestamp_ms);
-            startTimer(program_options, total_frames_count);
+            timer.startTimer();
             detector.process(f);
-            stopTimer(program_options, total_time_to_process_frames);
+            timer.stopTimer();
             object_listener.processResults(f);
 
             //To save output video file
@@ -126,7 +111,7 @@ void processObjectVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_
              << "Object types detected: " << object_listener.getObjectTypesDetected() << endl
              << "Objects detected in regions: " << object_listener.getObjectRegionsDetected() << endl
              << "Object callback interval: " << object_listener.getCallBackInterval() << endl
-             << "Average processed fps: " << total_frames_count * 1000.0f / total_time_to_process_frames<< "\n"
+             << "Average processed fps: " << timer.count_ * 1000.0f / timer.total_elapsed_time_ << "\n"
              << "******************************************************************\n";
 
         detector.reset();
@@ -159,15 +144,14 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
 
         cv::Mat mat;
         Timestamp timestamp_ms;
-        long total_time_to_process_frames = 0;
-        int total_frames_count = 0;
+        Timer timer;
         while (video_reader.GetFrame(mat, timestamp_ms)) {
             // create a Frame from the video input and process it with the Detector
             vision::Frame
                 f(mat.size().width, mat.size().height, mat.data, vision::Frame::ColorFormat::BGR, timestamp_ms);
-            startTimer(program_options, total_frames_count);
+            timer.startTimer();
             detector.process(f);
-            stopTimer(program_options, total_time_to_process_frames);
+            timer.stopTimer();
             occupant_listener.processResults(f);
 
             //To save output video file
@@ -181,7 +165,7 @@ void processOccupantVideo(vision::SyncFrameDetector& detector, std::ofstream& cs
              << "%\n"
              << "Occupants detected in regions:  " << occupant_listener.getOccupantRegionsDetected() << endl
              << "Occupant callback interval: " << occupant_listener.getCallbackInterval() << "ms\n"
-            << "Average processed fps: " << total_frames_count * 1000.0f / total_time_to_process_frames<< "\n"
+             << "Average processed fps: " << timer.count_ * 1000.0f / timer.total_elapsed_time_ << "\n"
             << "******************************************************************\n";
 
         detector.reset();
@@ -212,16 +196,15 @@ void processBodyVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_fi
 
         cv::Mat mat;
         Timestamp timestamp_ms;
-        long total_time_to_process_frames = 0;
-        int total_frames_count = 0;
+        Timer timer;
         while (video_reader.GetFrame(mat, timestamp_ms)) {
             // create a Frame from the video input and process it with the Detector
             vision::Frame
                 f(mat.size().width, mat.size().height, mat.data, vision::Frame::ColorFormat::BGR, timestamp_ms);
 
-            startTimer(program_options, total_frames_count);
+            timer.startTimer();
             detector.process(f);
-            stopTimer(program_options, total_time_to_process_frames);
+            timer.stopTimer();
             body_listener.processResults(f);
 
             //To save output video file
@@ -233,7 +216,7 @@ void processBodyVideo(vision::SyncFrameDetector& detector, std::ofstream& csv_fi
         cout << "******************************************************************\n"
              << "Percent of samples w/bodies present: " << body_listener.getSamplesWithBodiesPercent() << "%\n"
              << "Body callback interval: " << body_listener.getCallbackInterval() << "ms\n"
-            << "Average processed fps: " << total_frames_count * 1000.0f / total_time_to_process_frames << "\n"
+             << "Average processed fps: " << timer.count_ * 1000.0f / timer.total_elapsed_time_ << "\n"
              << "******************************************************************\n";
 
         detector.reset();
@@ -270,16 +253,15 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
 
         cv::Mat mat;
         Timestamp timestamp_ms;
-        long total_time_to_process_frames = 0;
-        int total_frames_count = 0;
+        Timer timer;
         while (video_reader.GetFrame(mat, timestamp_ms)) {
             // create a Frame from the video input and process it with the Detector
             vision::Frame
                 f(mat.size().width, mat.size().height, mat.data, vision::Frame::ColorFormat::BGR, timestamp_ms);
 
-            startTimer(program_options, total_frames_count);
+            timer.startTimer();
             detector.process(f);
-            stopTimer(program_options, total_time_to_process_frames);
+            timer.stopTimer();
             image_listener.processResults(f);
 
             //To save output video file
@@ -292,7 +274,7 @@ void processFaceVideo(vision::SyncFrameDetector& detector,
              << "Processed Frame count: " << image_listener.getProcessedFrames() << endl
              << "Frames w/faces: " << image_listener.getFramesWithFaces() << endl
              << "Percent of frames w/faces: " << image_listener.getFramesWithFacesPercent() << "%\n"
-             << "Average processed fps: " << total_frames_count * 1000.0f / total_time_to_process_frames<< "\n"
+             << "Average processed fps: " << timer.count_ * 1000.0f / timer.total_elapsed_time_ << "\n"
              << "******************************************************************\n";
 
         detector.reset();

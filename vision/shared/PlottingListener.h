@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "Visualizer.h"
@@ -10,7 +9,6 @@
 #include <condition_variable>
 #include <iostream>
 #include <iomanip>
-#include <chrono>
 
 using namespace affdex;
 
