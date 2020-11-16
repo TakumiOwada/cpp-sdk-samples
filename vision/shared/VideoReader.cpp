@@ -5,7 +5,7 @@
 
 using namespace std;
 
-VideoReader::VideoReader(const boost::filesystem::path& file_path, float sampling_frame_rate)
+VideoReader::VideoReader(const boost::filesystem::path& file_path, int sampling_frame_rate)
     : sampling_frame_rate_(sampling_frame_rate) {
 
     // Initialize so that with sampling, we always process the first frame.

@@ -29,7 +29,7 @@ struct ProgramOptionsVideo : ProgramOptionsCommon {
 
     // cmd line args
     affdex::Path input_video_path;
-    float sampling_frame_rate;
+    int sampling_frame_rate;
     bool draw_display;
     bool loop = false;
     bool draw_id = false;

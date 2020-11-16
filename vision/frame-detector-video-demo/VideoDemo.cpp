@@ -43,8 +43,7 @@ void assembleProgramOptions(po::options_description& description, ProgramOptions
         ("input,i", po::value<affdex::Path>(&program_options.input_video_path)->required(), "Video file to processs")
         ("output,o", po::value<affdex::Path>(&program_options.output_video_path), "Output video path.")
 #endif // _WIN32
-        ("sfps",
-         po::value<float>(&program_options.sampling_frame_rate)->default_value(0),
+        ("sfps", po::value<int>(&program_options.sampling_frame_rate)->default_value(0),
          "Input sampling frame rate. Default is 0, which means the app will respect the video's FPS and read all frames")
         ("draw", po::value<bool>(&program_options.draw_display)->default_value(true), "Draw video on screen.")
         ("numFaces", po::value<unsigned int>(&program_options.num_faces)->default_value(5), "Number of faces to be "
@@ -53,8 +52,7 @@ void assembleProgramOptions(po::options_description& description, ProgramOptions
         ("face_id",
          po::bool_switch(&program_options.draw_id)->default_value(false),
          "Draw face id on screen. Note: Drawing to screen should be enabled.")
-        ("quiet,q",
-         po::bool_switch(&program_options.disable_logging)->default_value(false),
+        ("quiet,q", po::bool_switch(&program_options.disable_logging)->default_value(false),
          "Disable logging to console")
         ("object", "Enable object detection")
         ("occupant", "Enable occupant detection, also enables body and face detection")
