@@ -36,7 +36,7 @@ int main(int argsc, char ** argsv)
     affdex::path videoPath;
 
     int process_framerate = 30;
-    bool draw_display = true;
+    bool draw_display = false;
     bool loop = false;
     unsigned int nFaces = 1;
     int faceDetectorMode = (int)FaceDetectorMode::LARGE_FACES;
